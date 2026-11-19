@@ -66,7 +66,7 @@ export default function StudentProfilePage() {
       {/* Header Card */}
       <div className="bg-white rounded-3xl border border-slate-200/90 shadow-md p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-600 to-blue-700 flex items-center justify-center text-white text-2xl font-black shadow-md shadow-sky-600/20">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-800 to-teal-700 flex items-center justify-center text-white text-2xl font-black shadow-md shadow-emerald-900/20 border border-emerald-600/30">
             {profile?.name ? profile.name.charAt(0) : "ط"}
           </div>
           <div>
@@ -77,7 +77,7 @@ export default function StudentProfilePage() {
               <Badge variant="success">نشط</Badge>
             </div>
             <p className="text-xs text-slate-500 mt-1 flex items-center gap-2">
-              <span className="font-mono font-bold text-sky-700">{profile?.studentId}</span>
+              <span className="font-mono font-bold text-teal-800">{profile?.studentId}</span>
               <span>•</span>
               <span>طالب</span>
             </p>

@@ -124,18 +124,18 @@ export default function StudentDashboardPage() {
   return (
     <div className="space-y-8">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-sky-900 via-blue-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-sky-950/10 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-emerald-950/10 border border-emerald-900/40 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-200 text-xs font-semibold mb-3 border border-teal-400/20">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 text-xs font-semibold mb-3 border border-emerald-500/20">
               <span>الموقع الامتحاني للكلية • MED ZONE</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               أهلاً بك، {data?.student?.name}
             </h1>
-            <p className="text-sm text-sky-200/80 mt-1 flex items-center gap-3">
+            <p className="text-sm text-emerald-100/70 mt-1 flex items-center gap-3">
               <span>الرقم الأكاديمي: <strong className="text-white font-mono">{data?.student?.studentId}</strong></span>
               <span>•</span>
               <span>{data?.student?.groupTag}</span>
@@ -147,7 +147,7 @@ export default function StudentDashboardPage() {
               href="/student/results"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition-colors border border-white/10"
             >
-              <Award className="w-4 h-4 text-sky-300" />
+              <Award className="w-4 h-4 text-emerald-300" />
               <span>سجل نتائجي</span>
             </Link>
           </div>
