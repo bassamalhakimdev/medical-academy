@@ -5,5 +5,5 @@ compatibility_date = "2024-09-23"
 # Cloudflare D1 Database Binding
 [[d1_databases]]
 binding = "DB"
-database_name = "medical-platform-db"
+database_name = "medical-academy-db"
 database_id = "YOUR_CLOUDFLARE_D1_DATABASE_ID" # Set in Cloudflare Dashboard
