@@ -23,20 +23,20 @@ export async function POST(
     const now = Date.now();
 
     // 1. Verify exam exists and is published
-    const exam = sqlite
+    const exam = (await sqlite
       .prepare(`
         SELECT id, title, duration_minutes, shuffle_questions, shuffle_choices, status
         FROM exams
         WHERE id = ?
       `)
-      .get(examId) as any;
+      .get(examId)) as any;
 
     if (!exam || exam.status !== "published") {
       return NextResponse.json({ error: "الاختبار غير متاح حالياً" }, { status: 404 });
     }
 
     // 2. Verify student has an active assignment for this exam within the allowed time window
-    const assignment = sqlite
+    const assignment = (await sqlite
       .prepare(`
         SELECT a.id, a.schedule_id, a.assigned_start_time, a.assigned_end_time, a.duration_minutes, a.status
         FROM exam_assignments a
@@ -45,7 +45,7 @@ export async function POST(
         ORDER BY a.assigned_start_time DESC
         LIMIT 1
       `)
-      .get(student.id, examId) as any;
+      .get(student.id, examId)) as any;
 
     if (!assignment) {
       return NextResponse.json(
@@ -69,13 +69,13 @@ export async function POST(
     }
 
     // 3. Check for existing attempts
-    const existingAttempt = sqlite
+    const existingAttempt = (await sqlite
       .prepare(`
         SELECT id, start_time, max_end_time, status, question_order, choice_orders
         FROM exam_attempts
         WHERE assignment_id = ? AND user_id = ?
       `)
-      .get(assignment.id, student.id) as any;
+      .get(assignment.id, student.id)) as any;
 
     if (existingAttempt) {
       if (existingAttempt.status === "submitted" || existingAttempt.status === "graded") {
@@ -109,9 +109,9 @@ export async function POST(
     const maxEndTime = Math.min(now + durationMs, assignment.assigned_end_time);
 
     // Fetch questions
-    const questionsRows = sqlite
+    const questionsRows = (await sqlite
       .prepare("SELECT id FROM questions WHERE exam_id = ? ORDER BY order_index ASC")
-      .all(examId) as { id: string }[];
+      .all(examId)) as { id: string }[];
 
     if (questionsRows.length === 0) {
       return NextResponse.json({ error: "لا توجد أسئلة مضافة في هذا الاختبار بعد" }, { status: 400 });
@@ -124,9 +124,9 @@ export async function POST(
 
     // Fetch choices for all questions
     const placeholders = questionIds.map(() => "?").join(",");
-    const choicesRows = sqlite
+    const choicesRows = (await sqlite
       .prepare(`SELECT id, question_id FROM choices WHERE question_id IN (${placeholders}) ORDER BY order_index ASC`)
-      .all(...questionIds) as { id: string; question_id: string }[];
+      .all(...questionIds)) as { id: string; question_id: string }[];
 
     const choiceOrdersMap: Record<string, string[]> = {};
     for (const qId of questionIds) {
@@ -139,34 +139,30 @@ export async function POST(
 
     const attemptId = generateId();
 
-    const startAttemptTx = sqlite.transaction(() => {
-      sqlite
-        .prepare(`
-          INSERT INTO exam_attempts (
-            id, exam_id, schedule_id, assignment_id, user_id, start_time, max_end_time,
-            status, question_order, choice_orders, created_at
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, 'in_progress', ?, ?, ?)
-        `)
-        .run(
-          attemptId,
-          examId,
-          assignment.schedule_id,
-          assignment.id,
-          student.id,
-          now,
-          maxEndTime,
-          JSON.stringify(questionIds),
-          JSON.stringify(choiceOrdersMap),
-          now
-        );
+    await sqlite
+      .prepare(`
+        INSERT INTO exam_attempts (
+          id, exam_id, schedule_id, assignment_id, user_id, start_time, max_end_time,
+          status, question_order, choice_orders, created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'in_progress', ?, ?, ?)
+      `)
+      .run(
+        attemptId,
+        examId,
+        assignment.schedule_id,
+        assignment.id,
+        student.id,
+        now,
+        maxEndTime,
+        JSON.stringify(questionIds),
+        JSON.stringify(choiceOrdersMap),
+        now
+      );
 
-      sqlite
-        .prepare("UPDATE exam_assignments SET status = 'in_progress' WHERE id = ?")
-        .run(assignment.id);
-    });
-
-    startAttemptTx();
+    await sqlite
+      .prepare("UPDATE exam_assignments SET status = 'in_progress' WHERE id = ?")
+      .run(assignment.id);
 
     return NextResponse.json({
       success: true,

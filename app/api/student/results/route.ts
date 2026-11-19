@@ -7,7 +7,7 @@ export async function GET() {
     const student = await requireStudent();
     const sqlite = getRawSqlite();
 
-    const resultsList = sqlite
+    const resultsList = (await sqlite
       .prepare(`
         SELECT 
           r.id, r.percentage, r.is_passed, r.completed_at, r.total_score, r.max_score,
@@ -20,7 +20,7 @@ export async function GET() {
         WHERE r.user_id = ?
         ORDER BY r.completed_at DESC
       `)
-      .all(student.id)
+      .all(student.id))
       .map((r: any) => ({
         ...r,
         is_passed: Boolean(r.is_passed),

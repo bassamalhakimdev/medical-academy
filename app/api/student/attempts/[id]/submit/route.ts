@@ -13,7 +13,7 @@ export async function POST(
     const now = Date.now();
 
     // 1. Fetch attempt and exam
-    const attempt = sqlite
+    const attempt = (await sqlite
       .prepare(`
         SELECT 
           a.id, a.exam_id, a.assignment_id, a.start_time, a.max_end_time, a.status,
@@ -22,7 +22,7 @@ export async function POST(
         JOIN exams e ON e.id = a.exam_id
         WHERE a.id = ? AND a.user_id = ?
       `)
-      .get(attemptId, student.id) as any;
+      .get(attemptId, student.id)) as any;
 
     if (!attempt) {
       return NextResponse.json({ error: "محاولة الاختبار غير موجودة" }, { status: 404 });
@@ -30,9 +30,9 @@ export async function POST(
 
     // 2. Prevent double submission (Atomic Guard)
     if (attempt.status === "submitted" || attempt.status === "graded") {
-      const existingResult = sqlite
+      const existingResult = (await sqlite
         .prepare("SELECT * FROM results WHERE attempt_id = ?")
-        .get(attemptId) as any;
+        .get(attemptId)) as any;
 
       return NextResponse.json({
         success: true,
@@ -46,27 +46,27 @@ export async function POST(
     }
 
     // 3. Fetch questions and their correct choices
-    const questionsRows = sqlite
+    const questionsRows = (await sqlite
       .prepare("SELECT id, points FROM questions WHERE exam_id = ?")
-      .all(attempt.exam_id) as { id: string; points: number }[];
+      .all(attempt.exam_id)) as { id: string; points: number }[];
 
     const questionIds = questionsRows.map((q) => q.id);
     let choicesRows: any[] = [];
     if (questionIds.length > 0) {
       const placeholders = questionIds.map(() => "?").join(",");
-      choicesRows = sqlite
+      choicesRows = (await sqlite
         .prepare(`
           SELECT id, question_id, is_correct 
           FROM choices 
           WHERE question_id IN (${placeholders})
         `)
-        .all(...questionIds) as any[];
+        .all(...questionIds)) as any[];
     }
 
     // 4. Fetch student's answers
-    const studentAnswersRows = sqlite
+    const studentAnswersRows = (await sqlite
       .prepare("SELECT question_id, selected_choice_id FROM student_answers WHERE attempt_id = ?")
-      .all(attemptId) as { question_id: string; selected_choice_id: string }[];
+      .all(attemptId)) as { question_id: string; selected_choice_id: string }[];
 
     const answerMap = new Map<string, string>();
     for (const ans of studentAnswersRows) {
@@ -115,66 +115,62 @@ export async function POST(
     const isPassed = percentage >= attempt.pass_percentage;
     const resultId = generateId();
 
-    // 6. Execute atomic transaction
-    const submitTransaction = sqlite.transaction(() => {
-      // Update each student answer with grading details
-      for (const item of answersToUpdate) {
-        sqlite
-          .prepare(`
-            UPDATE student_answers 
-            SET is_correct = ?, points_awarded = ?
-            WHERE attempt_id = ? AND question_id = ?
-          `)
-          .run(item.isCorrect ? 1 : 0, item.points, attemptId, item.questionId);
-      }
-
-      // Insert final result record
-      sqlite
+    // 6. Execute atomic updates
+    // Update each student answer with grading details
+    for (const item of answersToUpdate) {
+      await sqlite
         .prepare(`
-          INSERT INTO results (
-            id, attempt_id, exam_id, user_id, total_questions, answered_questions,
-            correct_answers, total_score, max_score, percentage, is_passed, completed_at, feedback
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          UPDATE student_answers 
+          SET is_correct = ?, points_awarded = ?
+          WHERE attempt_id = ? AND question_id = ?
         `)
-        .run(
-          resultId,
-          attemptId,
-          attempt.exam_id,
-          student.id,
-          questionsRows.length,
-          answeredQuestionsCount,
-          correctAnswersCount,
-          totalScore,
-          maxScore,
-          percentage,
-          isPassed ? 1 : 0,
-          now,
-          isPassed ? "تهانينا! لقد اجتزت الاختبار بنجاح." : "لم يتم اجتياز الاختبار. يمكنك مراجعة المحتوى وإعادة المحاولة في الجدولة القادمة."
-        );
+        .run(item.isCorrect ? 1 : 0, item.points, attemptId, item.questionId);
+    }
 
-      // Update attempt status to graded
-      sqlite
+    // Insert final result record
+    await sqlite
+      .prepare(`
+        INSERT INTO results (
+          id, attempt_id, exam_id, user_id, total_questions, answered_questions,
+          correct_answers, total_score, max_score, percentage, is_passed, completed_at, feedback
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `)
+      .run(
+        resultId,
+        attemptId,
+        attempt.exam_id,
+        student.id,
+        questionsRows.length,
+        answeredQuestionsCount,
+        correctAnswersCount,
+        totalScore,
+        maxScore,
+        percentage,
+        isPassed ? 1 : 0,
+        now,
+        isPassed ? "تهانينا! لقد اجتزت الاختبار بنجاح." : "لم يتم اجتياز الاختبار. يمكنك مراجعة المحتوى وإعادة المحاولة في الجدولة القادمة."
+      );
+
+    // Update attempt status to graded
+    await sqlite
+      .prepare(`
+        UPDATE exam_attempts 
+        SET status = 'graded', submit_time = ?
+        WHERE id = ?
+      `)
+      .run(now, attemptId);
+
+    // Update assignment status to completed
+    if (attempt.assignment_id) {
+      await sqlite
         .prepare(`
-          UPDATE exam_attempts 
-          SET status = 'graded', submit_time = ?
+          UPDATE exam_assignments 
+          SET status = 'completed'
           WHERE id = ?
         `)
-        .run(now, attemptId);
-
-      // Update assignment status to completed
-      if (attempt.assignment_id) {
-        sqlite
-          .prepare(`
-            UPDATE exam_assignments 
-            SET status = 'completed'
-            WHERE id = ?
-          `)
-          .run(attempt.assignment_id);
-      }
-    });
-
-    submitTransaction();
+        .run(attempt.assignment_id);
+    }
 
     return NextResponse.json({
       success: true,

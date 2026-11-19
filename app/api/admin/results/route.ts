@@ -46,7 +46,7 @@ export async function GET(req: Request) {
 
     query += ` ORDER BY r.completed_at DESC`;
 
-    const resultsList = sqlite.prepare(query).all(...params).map((r: any) => ({
+    const resultsList = (await sqlite.prepare(query).all(...params)).map((r: any) => ({
       ...r,
       is_passed: Boolean(r.is_passed),
       duration_seconds: r.submit_time && r.start_time ? Math.round((r.submit_time - r.start_time) / 1000) : null,

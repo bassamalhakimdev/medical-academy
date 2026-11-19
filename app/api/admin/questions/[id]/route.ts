@@ -46,38 +46,34 @@ export async function PUT(
     }
 
     const sqlite = getRawSqlite();
-    const question = sqlite.prepare("SELECT exam_id FROM questions WHERE id = ?").get(questionId) as any;
+    const question = (await sqlite.prepare("SELECT exam_id FROM questions WHERE id = ?").get(questionId)) as any;
     if (!question) {
       return NextResponse.json({ error: "السؤال غير موجود" }, { status: 404 });
     }
 
-    const updateTx = sqlite.transaction(() => {
-      // Update question details
-      sqlite
+    // Update question details
+    await sqlite
+      .prepare(`
+        UPDATE questions 
+        SET question_text = ?, points = ?, explanation = ?
+        WHERE id = ?
+      `)
+      .run(questionText.trim(), points, explanation?.trim() || "", questionId);
+
+    // Recreate or update choices
+    await sqlite.prepare("DELETE FROM choices WHERE question_id = ?").run(questionId);
+
+    for (let i = 0; i < choices.length; i++) {
+      const c = choices[i];
+      await sqlite
         .prepare(`
-          UPDATE questions 
-          SET question_text = ?, points = ?, explanation = ?
-          WHERE id = ?
+          INSERT INTO choices (id, question_id, choice_text, is_correct, order_index)
+          VALUES (?, ?, ?, ?, ?)
         `)
-        .run(questionText.trim(), points, explanation?.trim() || "", questionId);
+        .run(generateId(), questionId, c.choiceText.trim(), c.isCorrect ? 1 : 0, i + 1);
+    }
 
-      // Recreate or update choices
-      sqlite.prepare("DELETE FROM choices WHERE question_id = ?").run(questionId);
-
-      for (let i = 0; i < choices.length; i++) {
-        const c = choices[i];
-        sqlite
-          .prepare(`
-            INSERT INTO choices (id, question_id, choice_text, is_correct, order_index)
-            VALUES (?, ?, ?, ?, ?)
-          `)
-          .run(generateId(), questionId, c.choiceText.trim(), c.isCorrect ? 1 : 0, i + 1);
-      }
-
-      sqlite.prepare("UPDATE exams SET updated_at = ? WHERE id = ?").run(Date.now(), question.exam_id);
-    });
-
-    updateTx();
+    await sqlite.prepare("UPDATE exams SET updated_at = ? WHERE id = ?").run(Date.now(), question.exam_id);
 
     return NextResponse.json({ success: true, message: "تم تعديل السؤال بنجاح" });
   } catch (error: any) {
@@ -97,24 +93,20 @@ export async function DELETE(
     const { id: questionId } = await params;
     const sqlite = getRawSqlite();
 
-    const question = sqlite.prepare("SELECT exam_id FROM questions WHERE id = ?").get(questionId) as any;
+    const question = (await sqlite.prepare("SELECT exam_id FROM questions WHERE id = ?").get(questionId)) as any;
     if (!question) {
       return NextResponse.json({ error: "السؤال غير موجود" }, { status: 404 });
     }
 
-    const deleteTx = sqlite.transaction(() => {
-      sqlite.prepare("DELETE FROM questions WHERE id = ?").run(questionId);
-      sqlite
-        .prepare(`
-          UPDATE exams 
-          SET total_questions = (SELECT COUNT(*) FROM questions WHERE exam_id = ?),
-              updated_at = ?
-          WHERE id = ?
-        `)
-        .run(question.exam_id, Date.now(), question.exam_id);
-    });
-
-    deleteTx();
+    await sqlite.prepare("DELETE FROM questions WHERE id = ?").run(questionId);
+    await sqlite
+      .prepare(`
+        UPDATE exams 
+        SET total_questions = (SELECT COUNT(*) FROM questions WHERE exam_id = ?),
+            updated_at = ?
+        WHERE id = ?
+      `)
+      .run(question.exam_id, Date.now(), question.exam_id);
 
     return NextResponse.json({ success: true, message: "تم حذف السؤال بنجاح" });
   } catch (error: any) {

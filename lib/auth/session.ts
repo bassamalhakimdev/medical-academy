@@ -35,7 +35,7 @@ export async function createSession(userId: string): Promise<string> {
   const expiresAt = now + SESSION_DURATION_MS;
 
   const sqlite = getRawSqlite();
-  sqlite
+  await sqlite
     .prepare("INSERT INTO sessions (id, user_id, token, expires_at, created_at) VALUES (?, ?, ?, ?, ?)")
     .run(sessionId, userId, token, expiresAt, now);
 
@@ -70,7 +70,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     const sqlite = getRawSqlite();
     const now = Date.now();
 
-    const row = sqlite
+    const row = (await sqlite
       .prepare(`
         SELECT 
           u.id, u.name, u.email, u.role, u.is_active, u.student_id, u.phone, u.group_tag,
@@ -79,7 +79,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
         JOIN users u ON u.id = s.user_id
         WHERE s.token = ? AND s.expires_at > ?
       `)
-      .get(token, now) as any;
+      .get(token, now)) as any;
 
     if (!row || !row.is_active) {
       return null;
@@ -110,7 +110,7 @@ export async function destroySession(): Promise<void> {
     const token = cookieStore.get(COOKIE_NAME)?.value;
     if (token) {
       const sqlite = getRawSqlite();
-      sqlite.prepare("DELETE FROM sessions WHERE token = ?").run(token);
+      await sqlite.prepare("DELETE FROM sessions WHERE token = ?").run(token);
     }
     cookieStore.delete(COOKIE_NAME);
   } catch (error) {

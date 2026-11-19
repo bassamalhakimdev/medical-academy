@@ -1,67 +1,56 @@
 import { NextResponse } from "next/server";
+import { sql } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const apiUrl = process.env.DATABASE_API_URL;
-  const apiSecret = process.env.DATABASE_API_SECRET;
+  const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
-  if (!apiUrl || !apiSecret) {
+  if (!dbUrl) {
     return NextResponse.json(
       {
         success: false,
-        error: "Missing environment variables",
-        details: {
-          DATABASE_API_URL: apiUrl ? "SET" : "MISSING",
-          DATABASE_API_SECRET: apiSecret ? "SET" : "MISSING",
-        },
-        message:
-          "يرجى ضبط متغيرات البيئة DATABASE_API_URL و DATABASE_API_SECRET في بيئة Vercel أو ملف .env",
+        error: "Missing database connection URL",
+        message: "يرجى ضبط متغير البيئة DATABASE_URL أو POSTGRES_URL في بيئة Vercel أو ملف .env",
       },
       { status: 500 }
     );
   }
 
   try {
-    const cleanUrl = apiUrl.replace(/\/+$/, "");
-    const targetEndpoint = cleanUrl.endsWith("/api/db-check")
-      ? cleanUrl
-      : `${cleanUrl}/api/db-check`;
+    const startTime = Date.now();
+    const result = await sql`SELECT NOW() as now, version() as version;`;
+    const latencyMs = Date.now() - startTime;
 
-    const response = await fetch(targetEndpoint, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${apiSecret}`,
-        "Content-Type": "application/json",
-      },
-      // Timeout after 10 seconds
-      signal: AbortSignal.timeout(10000),
-    });
+    // Check count of tables
+    const tables = await sql`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      ORDER BY table_name;
+    `;
 
-    const data = await response.json().catch(() => null);
-
-    if (!response.ok) {
-      return NextResponse.json(
-        {
-          success: false,
-          status: response.status,
-          error: "Cloudflare Worker returned an error",
-          workerResponse: data,
-        },
-        { status: response.status }
-      );
-    }
+    // Check user count
+    const usersCount = await sql`SELECT COUNT(*) as count FROM users;`;
 
     return NextResponse.json({
       success: true,
-      message: "تم التحقق من الاتصال بقاعدة بيانات Cloudflare D1 عبر Worker بنجاح!",
-      d1Status: data,
+      message: "تم التحقق من الاتصال بقاعدة بيانات Neon / Vercel Postgres بنجاح 100%!",
+      database: "Neon / Vercel Serverless Postgres",
+      latencyMs: `${latencyMs}ms`,
+      serverInfo: {
+        now: result[0]?.now,
+        version: result[0]?.version?.split(" ")[0] + " " + result[0]?.version?.split(" ")[1],
+      },
+      tablesCount: tables.length,
+      tables: tables.map((t: any) => t.table_name),
+      seededUsers: Number(usersCount[0]?.count || 0),
     });
   } catch (err: any) {
     return NextResponse.json(
       {
         success: false,
-        error: "فشل الوصول إلى Cloudflare Worker",
+        error: "فشل الاتصال بقاعدة بيانات Postgres",
         details: err?.message,
       },
       { status: 502 }

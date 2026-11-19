@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Activity, Lock, Mail, ArrowLeft, ShieldCheck, Stethoscope, CheckCircle2 } from "lucide-react";
+import { Lock, Mail, ArrowLeft, ShieldCheck, Stethoscope, CheckCircle2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -57,14 +58,24 @@ export default function LoginPage() {
       <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-blue-200/30 rounded-full blur-3xl pointer-events-none -z-10" />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-600 to-blue-700 flex items-center justify-center text-white shadow-xl shadow-sky-500/25 mx-auto mb-4">
-          <Activity className="w-8 h-8" />
+        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white border border-slate-200/90 p-2.5 shadow-xl shadow-slate-200/60 mx-auto mb-4 flex items-center justify-center">
+          <Image
+            src="/logo.webp"
+            alt="شعار الكلية - MED ZONE"
+            width={112}
+            height={112}
+            className="w-full h-full object-contain"
+            priority
+          />
         </div>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          أكاديمية علوم التخدير والإنعاش
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          MED ZONE
         </h2>
-        <p className="mt-2 text-sm text-slate-600 max-w-sm mx-auto">
-          المنصة الأكاديمية لاختبارات وتدريب أطباء التخدير والرعاية المركزة
+        <p className="mt-1 text-base font-bold text-teal-800">
+          الموقع الامتحاني للكلية
+        </p>
+        <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
+          المنصة الأكاديمية للاختبارات والتقييم الإلكتروني المعتمد
         </p>
       </div>
 

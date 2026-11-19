@@ -16,7 +16,7 @@ export async function seedDatabase() {
   console.log("🌱 Starting database seeding...");
 
   // Check if admin already exists
-  const existingAdmin = sqlite.prepare("SELECT id FROM users WHERE email = ?").get("admin@anesthesia-academy.com");
+  const existingAdmin = await sqlite.prepare("SELECT id FROM users WHERE email = ?").get("admin@anesthesia-academy.com");
   if (existingAdmin) {
     console.log("ℹ️ Database is already seeded.");
     return;
@@ -44,7 +44,7 @@ export async function seedDatabase() {
       email: "admin@anesthesia-academy.com",
       passwordHash: adminPasswordHash,
       role: "admin",
-      isActive: true,
+      isActive: 1,
       studentId: "ADMIN-01",
       phone: "+966500000001",
       groupTag: "الإدارة الأكاديمية",
@@ -57,7 +57,7 @@ export async function seedDatabase() {
       email: "ahmed.zahrani@anesthesia-academy.com",
       passwordHash: studentPasswordHash,
       role: "student",
-      isActive: true,
+      isActive: 1,
       studentId: "ANES-2026-001",
       phone: "+966501112233",
       groupTag: "دفعة 2026 - المقيمين (R1)",
@@ -70,7 +70,7 @@ export async function seedDatabase() {
       email: "sara.mansoor@anesthesia-academy.com",
       passwordHash: studentPasswordHash,
       role: "student",
-      isActive: true,
+      isActive: 1,
       studentId: "ANES-2026-002",
       phone: "+966502223344",
       groupTag: "دفعة 2026 - المقيمين (R1)",
@@ -83,7 +83,7 @@ export async function seedDatabase() {
       email: "omar.qahtani@anesthesia-academy.com",
       passwordHash: studentPasswordHash,
       role: "student",
-      isActive: true,
+      isActive: 1,
       studentId: "ANES-2026-003",
       phone: "+966503334455",
       groupTag: "دفعة 2026 - المقيمين (R1)",
@@ -96,7 +96,7 @@ export async function seedDatabase() {
       email: "reem.dosari@anesthesia-academy.com",
       passwordHash: studentPasswordHash,
       role: "student",
-      isActive: true,
+      isActive: 1,
       studentId: "ANES-2025-015",
       phone: "+966504445566",
       groupTag: "دفعة 2025 - زمالة التخدير (R2)",
@@ -117,10 +117,10 @@ export async function seedDatabase() {
     totalQuestions: 6,
     passPercentage: 70,
     durationMinutes: 20,
-    shuffleQuestions: true,
-    shuffleChoices: true,
-    showResultsImmediately: true,
-    allowReviewAnswers: true,
+    shuffleQuestions: 1,
+    shuffleChoices: 1,
+    showResultsImmediately: 1,
+    allowReviewAnswers: 1,
     createdBy: adminId,
     createdAt: now - 10 * oneDay,
     updatedAt: now - 10 * oneDay,
@@ -214,7 +214,7 @@ export async function seedDatabase() {
         id: generateId(),
         questionId: questionId,
         choiceText: cData.text,
-        isCorrect: cData.isCorrect,
+        isCorrect: cData.isCorrect ? 1 : 0,
         orderIndex: j + 1,
       });
     }
@@ -230,10 +230,10 @@ export async function seedDatabase() {
     totalQuestions: 5,
     passPercentage: 65,
     durationMinutes: 15,
-    shuffleQuestions: true,
-    shuffleChoices: true,
-    showResultsImmediately: true,
-    allowReviewAnswers: true,
+    shuffleQuestions: 1,
+    shuffleChoices: 1,
+    showResultsImmediately: 1,
+    allowReviewAnswers: 1,
     createdBy: adminId,
     createdAt: now - 8 * oneDay,
     updatedAt: now - 8 * oneDay,
@@ -316,7 +316,7 @@ export async function seedDatabase() {
         id: generateId(),
         questionId: questionId,
         choiceText: cData.text,
-        isCorrect: cData.isCorrect,
+        isCorrect: cData.isCorrect ? 1 : 0,
         orderIndex: j + 1,
       });
     }
@@ -332,10 +332,10 @@ export async function seedDatabase() {
     totalQuestions: 4,
     passPercentage: 60,
     durationMinutes: 15,
-    shuffleQuestions: true,
-    shuffleChoices: true,
-    showResultsImmediately: true,
-    allowReviewAnswers: true,
+    shuffleQuestions: 1,
+    shuffleChoices: 1,
+    showResultsImmediately: 1,
+    allowReviewAnswers: 1,
     createdBy: adminId,
     createdAt: now - 5 * oneDay,
     updatedAt: now - 5 * oneDay,
@@ -407,7 +407,7 @@ export async function seedDatabase() {
         id: generateId(),
         questionId: questionId,
         choiceText: cData.text,
-        isCorrect: cData.isCorrect,
+        isCorrect: cData.isCorrect ? 1 : 0,
         orderIndex: j + 1,
       });
     }
@@ -425,7 +425,7 @@ export async function seedDatabase() {
     startTime: now - 2 * oneHour,
     endTime: now + 24 * oneHour,
     durationMinutes: 20,
-    isActive: true,
+    isActive: 1,
     createdAt: now - 2 * oneHour,
   });
 
@@ -478,7 +478,7 @@ export async function seedDatabase() {
     startTime: now + 24 * oneHour,
     endTime: now + 48 * oneHour,
     durationMinutes: 15,
-    isActive: true,
+    isActive: 1,
     createdAt: now,
   });
 
@@ -493,7 +493,7 @@ export async function seedDatabase() {
     startTime: now - 1 * oneHour,
     endTime: now + 12 * oneHour,
     durationMinutes: 25, // custom independent duration!
-    isActive: true,
+    isActive: 1,
     createdAt: now - 1 * oneHour,
   });
 
@@ -511,7 +511,7 @@ export async function seedDatabase() {
 
   // 6. Historical completed attempt and result for Student 1 on Exam 1
   const attempt1Id = generateId();
-  const qListExam1 = sqlite.prepare("SELECT id FROM questions WHERE exam_id = ? ORDER BY order_index ASC").all(exam1Id) as { id: string }[];
+  const qListExam1 = (await sqlite.prepare("SELECT id FROM questions WHERE exam_id = ? ORDER BY order_index ASC").all(exam1Id)) as { id: string }[];
   const qIds = qListExam1.map(q => q.id);
 
   const attemptStartTime = now - 90 * 60 * 1000;
@@ -536,7 +536,7 @@ export async function seedDatabase() {
   let correctCount = 0;
   for (let idx = 0; idx < qIds.length; idx++) {
     const qId = qIds[idx];
-    const qChoices = sqlite.prepare("SELECT id, is_correct FROM choices WHERE question_id = ?").all(qId) as { id: string; is_correct: number }[];
+    const qChoices = (await sqlite.prepare("SELECT id, is_correct FROM choices WHERE question_id = ?").all(qId)) as { id: string; is_correct: number }[];
     const correctChoice = qChoices.find(c => c.is_correct === 1);
     const incorrectChoice = qChoices.find(c => c.is_correct === 0);
 
@@ -551,7 +551,7 @@ export async function seedDatabase() {
       attemptId: attempt1Id,
       questionId: qId,
       selectedChoiceId: chosenChoiceId,
-      isCorrect: isThisCorrect,
+      isCorrect: isThisCorrect ? 1 : 0,
       pointsAwarded: isThisCorrect ? 1 : 0,
       savedAt: attemptStartTime + (idx + 1) * 2 * 60 * 1000,
     });
@@ -573,7 +573,7 @@ export async function seedDatabase() {
     totalScore: totalScore,
     maxScore: maxScore,
     percentage: percentage,
-    isPassed: percentage >= 70,
+    isPassed: percentage >= 70 ? 1 : 0,
     completedAt: attemptSubmitTime,
     feedback: "أداء ممتاز في تدبير المجرى الهوائي والإنعاش التخديري.",
   });

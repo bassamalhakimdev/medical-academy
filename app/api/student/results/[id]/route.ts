@@ -11,7 +11,7 @@ export async function GET(
     const { id: resultId } = await params;
     const sqlite = getRawSqlite();
 
-    const result = sqlite
+    const result = (await sqlite
       .prepare(`
         SELECT 
           r.id, r.percentage, r.is_passed, r.completed_at, r.total_score, r.max_score,
@@ -23,7 +23,7 @@ export async function GET(
         JOIN exam_attempts a ON a.id = r.attempt_id
         WHERE r.id = ? AND r.user_id = ?
       `)
-      .get(resultId, student.id) as any;
+      .get(resultId, student.id)) as any;
 
     if (!result) {
       return NextResponse.json({ error: "النتيجة غير موجودة" }, { status: 404 });
@@ -33,7 +33,7 @@ export async function GET(
     const allowReview = Boolean(result.allow_review_answers);
 
     if (allowReview) {
-      const questionsRows = sqlite
+      const questionsRows = (await sqlite
         .prepare(`
           SELECT 
             q.id, q.question_text, q.points, q.explanation, q.order_index,
@@ -43,20 +43,20 @@ export async function GET(
           WHERE q.exam_id = ?
           ORDER BY q.order_index ASC
         `)
-        .all(result.attempt_id, result.exam_id) as any[];
+        .all(result.attempt_id, result.exam_id)) as any[];
 
       const questionIds = questionsRows.map((q) => q.id);
       let allChoices: any[] = [];
       if (questionIds.length > 0) {
         const placeholders = questionIds.map(() => "?").join(",");
-        allChoices = sqlite
+        allChoices = (await sqlite
           .prepare(`
             SELECT id, question_id, choice_text, is_correct, order_index
             FROM choices
             WHERE question_id IN (${placeholders})
             ORDER BY order_index ASC
           `)
-          .all(...questionIds) as any[];
+          .all(...questionIds)) as any[];
       }
 
       reviewQuestions = questionsRows.map((q) => ({

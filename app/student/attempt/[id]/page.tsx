@@ -511,7 +511,7 @@ export default function ExamEnginePage() {
           )}
 
           <p className="text-xs text-slate-600 leading-relaxed">
-            عند تأكيد التسليم، سيتم إرسال إجاباتك فوراً إلى خادم الأكاديمية واحتساب درجتك النهائية ولن تتمكن من تعديل الإجابات بعد ذلك.
+            عند تأكيد التسليم، سيتم إرسال إجاباتك فوراً إلى خادم المنصة الامتحانية واحتساب درجتك النهائية ولن تتمكن من تعديل الإجابات بعد ذلك.
           </p>
 
           <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">

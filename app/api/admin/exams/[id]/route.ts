@@ -25,7 +25,7 @@ export async function GET(
     const { id } = await params;
     const sqlite = getRawSqlite();
 
-    const exam = sqlite
+    const exam = (await sqlite
       .prepare(`
         SELECT 
           id, title, description, status, duration_minutes, pass_percentage,
@@ -34,34 +34,34 @@ export async function GET(
         FROM exams
         WHERE id = ?
       `)
-      .get(id) as any;
+      .get(id)) as any;
 
     if (!exam) {
       return NextResponse.json({ error: "الاختبار غير موجود" }, { status: 404 });
     }
 
     // Get questions with choices
-    const questionsRows = sqlite
+    const questionsRows = (await sqlite
       .prepare(`
         SELECT id, question_text, points, explanation, order_index, created_at
         FROM questions
         WHERE exam_id = ?
         ORDER BY order_index ASC, created_at ASC
       `)
-      .all(id) as any[];
+      .all(id)) as any[];
 
     const questionIds = questionsRows.map((q) => q.id);
     let allChoices: any[] = [];
     if (questionIds.length > 0) {
       const placeholders = questionIds.map(() => "?").join(",");
-      allChoices = sqlite
+      allChoices = (await sqlite
         .prepare(`
           SELECT id, question_id, choice_text, is_correct, order_index
           FROM choices
           WHERE question_id IN (${placeholders})
           ORDER BY order_index ASC
         `)
-        .all(...questionIds) as any[];
+        .all(...questionIds)) as any[];
     }
 
     const questionsWithChoices = questionsRows.map((q) => ({
@@ -113,7 +113,7 @@ export async function PUT(
     const data = result.data;
     const sqlite = getRawSqlite();
 
-    const existing = sqlite.prepare("SELECT id FROM exams WHERE id = ?").get(id);
+    const existing = await sqlite.prepare("SELECT id FROM exams WHERE id = ?").get(id);
     if (!existing) {
       return NextResponse.json({ error: "الاختبار غير موجود" }, { status: 404 });
     }
@@ -159,7 +159,7 @@ export async function PUT(
     }
 
     values.push(id);
-    sqlite.prepare(`UPDATE exams SET ${updates.join(", ")} WHERE id = ?`).run(...values);
+    await sqlite.prepare(`UPDATE exams SET ${updates.join(", ")} WHERE id = ?`).run(...values);
 
     return NextResponse.json({ success: true, message: "تم تحديث الاختبار بنجاح" });
   } catch (error: any) {
@@ -179,10 +179,7 @@ export async function DELETE(
     const { id } = await params;
     const sqlite = getRawSqlite();
 
-    const result = sqlite.prepare("DELETE FROM exams WHERE id = ?").run(id);
-    if (result.changes === 0) {
-      return NextResponse.json({ error: "الاختبار غير موجود" }, { status: 404 });
-    }
+    await sqlite.prepare("DELETE FROM exams WHERE id = ?").run(id);
 
     return NextResponse.json({ success: true, message: "تم حذف الاختبار بنجاح" });
   } catch (error: any) {

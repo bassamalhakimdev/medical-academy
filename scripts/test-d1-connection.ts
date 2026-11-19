@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
+import { neon } from "@neondatabase/serverless";
 
-// Simple .env parser to read variables without external deps
 function loadEnv() {
   const envPath = path.join(process.cwd(), ".env");
   if (!fs.existsSync(envPath)) return;
@@ -26,65 +26,56 @@ function loadEnv() {
 async function testConnection() {
   loadEnv();
 
-  console.log("🔍 فحص الاتصال بـ Cloudflare D1 عبر Cloudflare Worker...");
+  console.log("🔍 فحص الاتصال بقاعدة بيانات Neon / Vercel Postgres...");
   console.log("------------------------------------------------------------");
 
-  const apiUrl = process.env.DATABASE_API_URL;
-  const apiSecret = process.env.DATABASE_API_SECRET;
+  const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
-  console.log(`- DATABASE_API_URL:    ${apiUrl ? apiUrl : "❌ غير مضبوط (NOT SET)"}`);
-  console.log(`- DATABASE_API_SECRET: ${apiSecret ? "•••••••••••• (SET)" : "❌ غير مضبوط (NOT SET)"}`);
-  console.log(`- Database Name:       medical-academy-db`);
-  console.log(`- Worker Binding:      DB`);
+  console.log(`- Connection URL: ${dbUrl ? "•••••••••••• (SET)" : "❌ غير مضبوط (NOT SET)"}`);
+  console.log(`- Host:           ${process.env.PGHOST || "Neon Serverless Host"}`);
+  console.log(`- Database Name:  ${process.env.PGDATABASE || "neondb"}`);
+  console.log(`- User:           ${process.env.PGUSER || "neondb_owner"}`);
   console.log("------------------------------------------------------------");
 
-  if (!apiUrl || !apiSecret) {
-    console.log("\n⚠️ تنبيه: يرجى وضع الرابط والمفتاح السري في ملف .env بالصيغة التالية:");
-    console.log('DATABASE_API_URL="https://your-worker-url.workers.dev"');
-    console.log('DATABASE_API_SECRET="your-secret-key"');
-    console.log("\nبانتظار تزويد المتغيرات لإجراء الفحص الفعلي.");
+  if (!dbUrl) {
+    console.log("\n⚠️ تنبيه: يرجى وضع رابط قاعدة البيانات DATABASE_URL أو POSTGRES_URL في ملف .env");
     return false;
   }
 
-  const cleanUrl = apiUrl.replace(/\/+$/, "");
-  const targetEndpoint = cleanUrl.endsWith("/api/db-check") ? cleanUrl : `${cleanUrl}/api/db-check`;
-
-  console.log(`\n📡 جاري إرسال طلب GET إلى: ${targetEndpoint}`);
-  console.log(`🔑 الترويسة: Authorization: Bearer DATABASE_API_SECRET`);
-
   try {
-    const response = await fetch(targetEndpoint, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${apiSecret}`,
-        "Content-Type": "application/json",
-      },
-      signal: AbortSignal.timeout(10000),
-    });
+    const startTime = Date.now();
+    const sql = neon(dbUrl);
+    const result = await sql`SELECT NOW() as now, version() as version;`;
+    const latency = Date.now() - startTime;
 
-    console.log(`\n📥 رمز الاستجابة (Status Code): ${response.status} ${response.statusText}`);
-    const text = await response.text();
-    let json: any = null;
-    try {
-      json = JSON.parse(text);
-      console.log("📋 محتوى الاستجابة (JSON):", JSON.stringify(json, null, 2));
-    } catch {
-      console.log("📋 محتوى الاستجابة (Text):", text);
-    }
+    console.log(`\n✅ تم الاتصال بنجاح بقاعدة البيانات! (زمن الاستجابة: ${latency}ms)`);
+    console.log(`- توقيت الخادم: ${result[0]?.now}`);
+    console.log(`- إصدار المحرك: ${result[0]?.version}`);
 
-    if (response.ok && (json?.success || response.status === 200)) {
-      console.log("\n✅ نجح فحص الاتصال بقاعدة بيانات Cloudflare D1 عبر Worker بنجاح!");
-      return true;
-    } else {
-      console.log("\n❌ فشل فحص الاتصال. يرجى التحقق من صحة الرابط والمفتاح السري وصلاحيات الـ Worker.");
-      return false;
-    }
+    // Check tables
+    const tables = await sql`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      ORDER BY table_name;
+    `;
+    console.log(`- عدد الجداول المنشأة: ${tables.length}`);
+    console.log(`- قائمة الجداول: [ ${tables.map((t: any) => t.table_name).join(", ")} ]`);
+
+    // Check users
+    const usersCount = await sql`SELECT COUNT(*) as count FROM users;`;
+    console.log(`- عدد المستخدمين المسجلين: ${usersCount[0]?.count}`);
+
+    console.log("\n🚀 جميع الجداول والبيانات جاهزة للعمل على Vercel بنسبة 100%!");
+    return true;
   } catch (err: any) {
-    console.error("\n❌ حدث خطأ في الاتصال بالشبكة:", err?.message);
+    console.error("\n❌ فشل الاتصال بقاعدة البيانات:", err?.message);
     return false;
   }
 }
 
 testConnection().then((success) => {
-  process.exit(success ? 0 : 1);
+  if (!success) {
+    process.exitCode = 1;
+  }
 });

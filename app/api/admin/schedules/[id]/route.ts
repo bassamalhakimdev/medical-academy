@@ -32,7 +32,7 @@ export async function PUT(
     const data = result.data;
     const sqlite = getRawSqlite();
 
-    const existing = sqlite.prepare("SELECT id FROM exam_schedules WHERE id = ?").get(id);
+    const existing = await sqlite.prepare("SELECT id FROM exam_schedules WHERE id = ?").get(id);
     if (!existing) {
       return NextResponse.json({ error: "الجدولة غير موجودة" }, { status: 404 });
     }
@@ -63,7 +63,7 @@ export async function PUT(
 
     if (updates.length > 0) {
       values.push(id);
-      sqlite.prepare(`UPDATE exam_schedules SET ${updates.join(", ")} WHERE id = ?`).run(...values);
+      await sqlite.prepare(`UPDATE exam_schedules SET ${updates.join(", ")} WHERE id = ?`).run(...values);
 
       // If times or duration were updated, also update related uncompleted assignments
       if (data.startTime !== undefined || data.endTime !== undefined || data.durationMinutes !== undefined) {
@@ -82,7 +82,7 @@ export async function PUT(
           assignValues.push(data.durationMinutes);
         }
         assignValues.push(id);
-        sqlite
+        await sqlite
           .prepare(`UPDATE exam_assignments SET ${assignUpdates.join(", ")} WHERE schedule_id = ? AND status = 'assigned'`)
           .run(...assignValues);
       }
@@ -106,10 +106,7 @@ export async function DELETE(
     const { id } = await params;
     const sqlite = getRawSqlite();
 
-    const result = sqlite.prepare("DELETE FROM exam_schedules WHERE id = ?").run(id);
-    if (result.changes === 0) {
-      return NextResponse.json({ error: "الجدولة غير موجودة" }, { status: 404 });
-    }
+    await sqlite.prepare("DELETE FROM exam_schedules WHERE id = ?").run(id);
 
     return NextResponse.json({ success: true, message: "تم حذف الجدولة بنجاح" });
   } catch (error: any) {

@@ -54,16 +54,16 @@ export async function GET(req: Request) {
 
     query += ` GROUP BY u.id ORDER BY u.created_at DESC`;
 
-    const students = sqlite.prepare(query).all(...params).map((st: any) => ({
+    const students = (await sqlite.prepare(query).all(...params)).map((st: any) => ({
       ...st,
       is_active: Boolean(st.is_active),
       avg_score: st.avg_score ? Math.round(st.avg_score * 10) / 10 : null,
     }));
 
     // Also get distinct groups for filter dropdown
-    const groups = sqlite
+    const groups = (await sqlite
       .prepare("SELECT DISTINCT group_tag FROM users WHERE role = 'student' AND group_tag IS NOT NULL")
-      .all()
+      .all())
       .map((g: any) => g.group_tag);
 
     return NextResponse.json({ success: true, students, groups });
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
     const sqlite = getRawSqlite();
 
     // Check if email already exists
-    const existing = sqlite.prepare("SELECT id FROM users WHERE email = ?").get(email.toLowerCase().trim());
+    const existing = await sqlite.prepare("SELECT id FROM users WHERE email = ?").get(email.toLowerCase().trim());
     if (existing) {
       return NextResponse.json(
         { error: "البريد الإلكتروني مسجل مسبقاً لطالب آخر" },
@@ -102,7 +102,7 @@ export async function POST(req: Request) {
     }
 
     // Check if studentId already exists
-    const existingId = sqlite.prepare("SELECT id FROM users WHERE student_id = ?").get(studentId.trim());
+    const existingId = await sqlite.prepare("SELECT id FROM users WHERE student_id = ?").get(studentId.trim());
     if (existingId) {
       return NextResponse.json(
         { error: "الرقم الأكاديمي مسجل مسبقاً لطالب آخر" },
@@ -114,7 +114,7 @@ export async function POST(req: Request) {
     const newId = generateId();
     const now = Date.now();
 
-    sqlite
+    await sqlite
       .prepare(`
         INSERT INTO users (id, name, email, password_hash, role, is_active, student_id, phone, group_tag, created_at, updated_at)
         VALUES (?, ?, ?, ?, 'student', 1, ?, ?, ?, ?, ?)

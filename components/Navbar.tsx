@@ -2,8 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Activity, LogOut, User as UserIcon, Shield, GraduationCap } from "lucide-react";
+import { LogOut, Shield, GraduationCap } from "lucide-react";
 import { Badge } from "./Badge";
 
 interface NavbarProps {
@@ -34,20 +35,27 @@ export function Navbar({ user }: NavbarProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <Link href={user?.role === "admin" ? "/admin" : "/student"} className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-blue-700 flex items-center justify-center text-white shadow-md shadow-sky-500/20 group-hover:scale-105 transition-transform">
-            <Activity className="w-5 h-5" />
+          <div className="relative w-11 h-11 rounded-xl bg-white border border-slate-200/90 p-1 flex items-center justify-center shadow-xs group-hover:shadow-md group-hover:border-teal-500/40 transition-all overflow-hidden shrink-0">
+            <Image
+              src="/logo.webp"
+              alt="شعار الكلية - MED ZONE"
+              width={44}
+              height={44}
+              className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+              priority
+            />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-900 text-base sm:text-lg tracking-tight">
-                أكاديمية التخدير
+              <span className="font-black text-slate-900 text-base sm:text-lg tracking-tight">
+                MED ZONE
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-sm bg-sky-100 text-sky-800">
-                Medical
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200">
+                الموقع الامتحاني
               </span>
             </div>
             <p className="text-[11px] text-slate-500 hidden sm:block">
-              المنصة الطبية المتخصصة في علوم التخدير والرعاية الحرجة
+              المنصة الامتحانية للكلية • Examination Platform
             </p>
           </div>
         </Link>

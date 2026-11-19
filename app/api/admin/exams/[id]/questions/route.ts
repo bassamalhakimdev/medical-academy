@@ -48,50 +48,45 @@ export async function POST(
     }
 
     const sqlite = getRawSqlite();
-    const exam = sqlite.prepare("SELECT id FROM exams WHERE id = ?").get(examId);
+    const exam = await sqlite.prepare("SELECT id FROM exams WHERE id = ?").get(examId);
     if (!exam) {
       return NextResponse.json({ error: "الاختبار غير موجود" }, { status: 404 });
     }
 
-    const maxOrderRow = sqlite
+    const maxOrderRow = (await sqlite
       .prepare("SELECT MAX(order_index) as max_order FROM questions WHERE exam_id = ?")
-      .get(examId) as { max_order: number | null };
+      .get(examId)) as { max_order: number | null };
     const nextOrder = (maxOrderRow?.max_order ?? 0) + 1;
 
     const questionId = generateId();
     const now = Date.now();
 
-    // Use transaction
-    const insertQuestionTx = sqlite.transaction(() => {
-      sqlite
+    await sqlite
+      .prepare(`
+        INSERT INTO questions (id, exam_id, question_text, points, explanation, order_index, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `)
+      .run(questionId, examId, questionText.trim(), points, explanation?.trim() || "", nextOrder, now);
+
+    for (let i = 0; i < choices.length; i++) {
+      const c = choices[i];
+      await sqlite
         .prepare(`
-          INSERT INTO questions (id, exam_id, question_text, points, explanation, order_index, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO choices (id, question_id, choice_text, is_correct, order_index)
+          VALUES (?, ?, ?, ?, ?)
         `)
-        .run(questionId, examId, questionText.trim(), points, explanation?.trim() || "", nextOrder, now);
+        .run(generateId(), questionId, c.choiceText.trim(), c.isCorrect ? 1 : 0, i + 1);
+    }
 
-      for (let i = 0; i < choices.length; i++) {
-        const c = choices[i];
-        sqlite
-          .prepare(`
-            INSERT INTO choices (id, question_id, choice_text, is_correct, order_index)
-            VALUES (?, ?, ?, ?, ?)
-          `)
-          .run(generateId(), questionId, c.choiceText.trim(), c.isCorrect ? 1 : 0, i + 1);
-      }
-
-      // Update total_questions in exam
-      sqlite
-        .prepare(`
-          UPDATE exams 
-          SET total_questions = (SELECT COUNT(*) FROM questions WHERE exam_id = ?),
-              updated_at = ?
-          WHERE id = ?
-        `)
-        .run(examId, now, examId);
-    });
-
-    insertQuestionTx();
+    // Update total_questions in exam
+    await sqlite
+      .prepare(`
+        UPDATE exams 
+        SET total_questions = (SELECT COUNT(*) FROM questions WHERE exam_id = ?),
+            updated_at = ?
+        WHERE id = ?
+      `)
+      .run(examId, now, examId);
 
     return NextResponse.json({
       success: true,

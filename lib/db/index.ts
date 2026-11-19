@@ -1,184 +1,84 @@
-import { drizzle as drizzleSqlite } from "drizzle-orm/better-sqlite3";
-import Database from "better-sqlite3";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "./schema";
-import path from "path";
-import fs from "fs";
 
-// Initialize SQLite database instance
-let _db: ReturnType<typeof drizzleSqlite<typeof schema>> | null = null;
-let _sqliteInstance: InstanceType<typeof Database> | null = null;
+const databaseUrl =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  "";
+
+if (!databaseUrl) {
+  console.warn("⚠️ DATABASE_URL or POSTGRES_URL is not set in environment variables!");
+}
+
+export const sql = neon(databaseUrl);
+export const db = drizzle(sql, { schema });
+
+// Helper to convert SQLite '?' placeholders to PostgreSQL '$1, $2, ...'
+export function convertPlaceholders(query: string): string {
+  let paramIndex = 1;
+  return query.replace(/\?/g, () => `$${paramIndex++}`);
+}
+
+export interface DbClient {
+  all<T = any>(queryText: string, params?: any[]): Promise<T[]>;
+  get<T = any>(queryText: string, params?: any[]): Promise<T | null>;
+  run(queryText: string, params?: any[]): Promise<{ rowCount: number }>;
+  exec(queryText: string): Promise<void>;
+  transaction<T extends (...args: any[]) => any>(fn: T): (...args: Parameters<T>) => ReturnType<T>;
+  prepare(queryText: string): any;
+}
+
+export const dbClient: DbClient = {
+  async all<T = any>(queryText: string, params: any[] = []): Promise<T[]> {
+    const pgSql = convertPlaceholders(queryText);
+    const result = await sql.query(pgSql, params);
+    return result as T[];
+  },
+
+  async get<T = any>(queryText: string, params: any[] = []): Promise<T | null> {
+    const rows = await this.all<T>(queryText, params);
+    return rows.length > 0 ? rows[0] : null;
+  },
+
+  async run(queryText: string, params: any[] = []): Promise<{ rowCount: number }> {
+    const pgSql = convertPlaceholders(queryText);
+    const result = await sql.query(pgSql, params);
+    return { rowCount: Array.isArray(result) ? result.length : 1 };
+  },
+
+  async exec(queryText: string): Promise<void> {
+    await sql(queryText as any);
+  },
+
+  transaction<T extends (...args: any[]) => any>(fn: T): (...args: Parameters<T>) => ReturnType<T> {
+    return ((...args: any[]) => {
+      return fn(...args);
+    }) as any;
+  },
+
+  prepare(queryText: string) {
+    const self = this;
+    return {
+      async all(...params: any[]) {
+        return self.all(queryText, params.length === 1 && Array.isArray(params[0]) ? params[0] : params);
+      },
+      async get(...params: any[]) {
+        return self.get(queryText, params.length === 1 && Array.isArray(params[0]) ? params[0] : params);
+      },
+      async run(...params: any[]) {
+        return self.run(queryText, params.length === 1 && Array.isArray(params[0]) ? params[0] : params);
+      },
+    };
+  },
+};
 
 export function getDb() {
-  if (_db) return _db;
-
-  // Ensure data directory exists
-  const dbDir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
-  }
-
-  const dbPath = process.env.DATABASE_PATH || path.join(dbDir, "medical_platform.db");
-  const sqlite = new Database(dbPath);
-  _sqliteInstance = sqlite;
-
-  // Performance pragmas for SQLite / D1 compatibility
-  sqlite.pragma("journal_mode = WAL");
-  sqlite.pragma("foreign_keys = ON");
-
-  // Create tables if they do not exist
-  initSchema(sqlite);
-
-  _db = drizzleSqlite(sqlite, { schema });
-  return _db;
+  return db;
 }
 
 export function getRawSqlite() {
-  if (!_sqliteInstance) {
-    getDb();
-  }
-  return _sqliteInstance!;
+  return dbClient;
 }
 
-// Ensure all tables exist on startup
-function initSchema(sqlite: InstanceType<typeof Database>) {
-  sqlite.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      email TEXT NOT NULL UNIQUE,
-      password_hash TEXT NOT NULL,
-      role TEXT NOT NULL DEFAULT 'student',
-      is_active INTEGER NOT NULL DEFAULT 1,
-      student_id TEXT,
-      phone TEXT,
-      group_tag TEXT DEFAULT 'عام',
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS sessions (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      token TEXT NOT NULL UNIQUE,
-      expires_at INTEGER NOT NULL,
-      created_at INTEGER NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS exams (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      description TEXT DEFAULT '',
-      status TEXT NOT NULL DEFAULT 'draft',
-      total_questions INTEGER NOT NULL DEFAULT 0,
-      pass_percentage INTEGER NOT NULL DEFAULT 60,
-      duration_minutes INTEGER NOT NULL DEFAULT 30,
-      shuffle_questions INTEGER NOT NULL DEFAULT 1,
-      shuffle_choices INTEGER NOT NULL DEFAULT 1,
-      show_results_immediately INTEGER NOT NULL DEFAULT 1,
-      allow_review_answers INTEGER NOT NULL DEFAULT 1,
-      created_by TEXT REFERENCES users(id),
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS questions (
-      id TEXT PRIMARY KEY,
-      exam_id TEXT NOT NULL REFERENCES exams(id) ON DELETE CASCADE,
-      question_text TEXT NOT NULL,
-      points REAL NOT NULL DEFAULT 1,
-      explanation TEXT DEFAULT '',
-      order_index INTEGER NOT NULL DEFAULT 0,
-      created_at INTEGER NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS choices (
-      id TEXT PRIMARY KEY,
-      question_id TEXT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
-      choice_text TEXT NOT NULL,
-      is_correct INTEGER NOT NULL DEFAULT 0,
-      order_index INTEGER NOT NULL DEFAULT 0
-    );
-
-    CREATE TABLE IF NOT EXISTS exam_schedules (
-      id TEXT PRIMARY KEY,
-      exam_id TEXT NOT NULL REFERENCES exams(id) ON DELETE CASCADE,
-      schedule_type TEXT NOT NULL DEFAULT 'group',
-      title TEXT NOT NULL,
-      target_group TEXT,
-      target_user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
-      start_time INTEGER NOT NULL,
-      end_time INTEGER NOT NULL,
-      duration_minutes INTEGER NOT NULL,
-      is_active INTEGER NOT NULL DEFAULT 1,
-      created_at INTEGER NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS exam_assignments (
-      id TEXT PRIMARY KEY,
-      exam_id TEXT NOT NULL REFERENCES exams(id) ON DELETE CASCADE,
-      schedule_id TEXT NOT NULL REFERENCES exam_schedules(id) ON DELETE CASCADE,
-      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      assigned_start_time INTEGER NOT NULL,
-      assigned_end_time INTEGER NOT NULL,
-      duration_minutes INTEGER NOT NULL,
-      status TEXT NOT NULL DEFAULT 'assigned',
-      created_at INTEGER NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS exam_attempts (
-      id TEXT PRIMARY KEY,
-      exam_id TEXT NOT NULL REFERENCES exams(id) ON DELETE CASCADE,
-      schedule_id TEXT REFERENCES exam_schedules(id),
-      assignment_id TEXT REFERENCES exam_assignments(id),
-      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      start_time INTEGER NOT NULL,
-      max_end_time INTEGER NOT NULL,
-      submit_time INTEGER,
-      status TEXT NOT NULL DEFAULT 'in_progress',
-      question_order TEXT NOT NULL,
-      choice_orders TEXT NOT NULL,
-      created_at INTEGER NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS student_answers (
-      id TEXT PRIMARY KEY,
-      attempt_id TEXT NOT NULL REFERENCES exam_attempts(id) ON DELETE CASCADE,
-      question_id TEXT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
-      selected_choice_id TEXT REFERENCES choices(id),
-      is_correct INTEGER,
-      points_awarded REAL DEFAULT 0,
-      saved_at INTEGER NOT NULL,
-      UNIQUE(attempt_id, question_id)
-    );
-
-    CREATE TABLE IF NOT EXISTS results (
-      id TEXT PRIMARY KEY,
-      attempt_id TEXT NOT NULL UNIQUE REFERENCES exam_attempts(id) ON DELETE CASCADE,
-      exam_id TEXT NOT NULL REFERENCES exams(id) ON DELETE CASCADE,
-      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      total_questions INTEGER NOT NULL,
-      answered_questions INTEGER NOT NULL,
-      correct_answers INTEGER NOT NULL,
-      total_score REAL NOT NULL,
-      max_score REAL NOT NULL,
-      percentage REAL NOT NULL,
-      is_passed INTEGER NOT NULL,
-      completed_at INTEGER NOT NULL,
-      feedback TEXT DEFAULT ''
-    );
-
-    -- Indexes for performance
-    CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-    CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
-    CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
-    CREATE INDEX IF NOT EXISTS idx_questions_exam ON questions(exam_id);
-    CREATE INDEX IF NOT EXISTS idx_choices_question ON choices(question_id);
-    CREATE INDEX IF NOT EXISTS idx_schedules_exam ON exam_schedules(exam_id);
-    CREATE INDEX IF NOT EXISTS idx_assignments_user ON exam_assignments(user_id);
-    CREATE INDEX IF NOT EXISTS idx_attempts_user_exam ON exam_attempts(user_id, exam_id);
-    CREATE INDEX IF NOT EXISTS idx_student_answers_attempt ON student_answers(attempt_id);
-    CREATE INDEX IF NOT EXISTS idx_results_user ON results(user_id);
-  `);
-}
-
-export const db = getDb();
+export { schema };

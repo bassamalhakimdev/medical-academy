@@ -24,20 +24,20 @@ export async function GET(
     const { id } = await params;
     const sqlite = getRawSqlite();
 
-    const student = sqlite
+    const student = (await sqlite
       .prepare(`
         SELECT id, name, email, is_active, student_id, phone, group_tag, created_at, updated_at
         FROM users
         WHERE id = ? AND role = 'student'
       `)
-      .get(id) as any;
+      .get(id)) as any;
 
     if (!student) {
       return NextResponse.json({ error: "الطالب غير موجود" }, { status: 404 });
     }
 
     // Get exam history
-    const history = sqlite
+    const history = await sqlite
       .prepare(`
         SELECT 
           r.id as result_id, r.percentage, r.is_passed, r.completed_at, r.total_score, r.max_score,
@@ -87,14 +87,14 @@ export async function PUT(
     const data = result.data;
     const sqlite = getRawSqlite();
 
-    const existing = sqlite.prepare("SELECT id FROM users WHERE id = ? AND role = 'student'").get(id);
+    const existing = await sqlite.prepare("SELECT id FROM users WHERE id = ? AND role = 'student'").get(id);
     if (!existing) {
       return NextResponse.json({ error: "الطالب غير موجود" }, { status: 404 });
     }
 
     // If updating email, check uniqueness
     if (data.email) {
-      const emailConflict = sqlite
+      const emailConflict = await sqlite
         .prepare("SELECT id FROM users WHERE email = ? AND id != ?")
         .get(data.email.toLowerCase().trim(), id);
       if (emailConflict) {
@@ -104,7 +104,7 @@ export async function PUT(
 
     // If updating studentId, check uniqueness
     if (data.studentId) {
-      const idConflict = sqlite
+      const idConflict = await sqlite
         .prepare("SELECT id FROM users WHERE student_id = ? AND id != ?")
         .get(data.studentId.trim(), id);
       if (idConflict) {
@@ -146,7 +146,7 @@ export async function PUT(
     }
 
     values.push(id);
-    sqlite.prepare(`UPDATE users SET ${updates.join(", ")} WHERE id = ?`).run(...values);
+    await sqlite.prepare(`UPDATE users SET ${updates.join(", ")} WHERE id = ?`).run(...values);
 
     return NextResponse.json({ success: true, message: "تم تحديث بيانات الطالب بنجاح" });
   } catch (error: any) {
@@ -167,10 +167,7 @@ export async function DELETE(
     const { id } = await params;
     const sqlite = getRawSqlite();
 
-    const result = sqlite.prepare("DELETE FROM users WHERE id = ? AND role = 'student'").run(id);
-    if (result.changes === 0) {
-      return NextResponse.json({ error: "الطالب غير موجود" }, { status: 404 });
-    }
+    await sqlite.prepare("DELETE FROM users WHERE id = ? AND role = 'student'").run(id);
 
     return NextResponse.json({ success: true, message: "تم حذف حساب الطالب بنجاح" });
   } catch (error: any) {

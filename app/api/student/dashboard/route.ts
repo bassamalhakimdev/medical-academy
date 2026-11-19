@@ -9,7 +9,7 @@ export async function GET() {
     const now = Date.now();
 
     // 1. Get all assignments for this student
-    const assignments = sqlite
+    const assignments = (await sqlite
       .prepare(`
         SELECT 
           a.id as assignment_id, a.status as assignment_status,
@@ -28,7 +28,7 @@ export async function GET() {
         WHERE a.user_id = ? AND e.status = 'published' AND s.is_active = 1
         ORDER BY a.assigned_start_time ASC
       `)
-      .all(student.id) as any[];
+      .all(student.id)) as any[];
 
     const available: any[] = [];
     const upcoming: any[] = [];
@@ -64,7 +64,7 @@ export async function GET() {
     }
 
     // 2. Recent results
-    const recentResults = sqlite
+    const recentResults = (await sqlite
       .prepare(`
         SELECT 
           r.id, r.percentage, r.is_passed, r.completed_at, r.total_score, r.max_score,
@@ -77,7 +77,7 @@ export async function GET() {
         ORDER BY r.completed_at DESC
         LIMIT 5
       `)
-      .all(student.id)
+      .all(student.id))
       .map((r: any) => ({
         ...r,
         is_passed: Boolean(r.is_passed),

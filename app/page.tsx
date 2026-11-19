@@ -1,8 +1,8 @@
 import { getCurrentUser } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
-  Activity,
   ArrowLeft,
   ShieldCheck,
   Stethoscope,
@@ -30,15 +30,22 @@ export default async function HomePage() {
       <header className="w-full bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-blue-700 flex items-center justify-center text-white shadow-md shadow-sky-600/20">
-              <Activity className="w-5 h-5" />
+            <div className="relative w-11 h-11 rounded-xl bg-white border border-slate-200/90 p-1 flex items-center justify-center shadow-xs">
+              <Image
+                src="/logo.webp"
+                alt="شعار الكلية - MED ZONE"
+                width={44}
+                height={44}
+                className="w-full h-full object-contain"
+                priority
+              />
             </div>
             <div>
-              <span className="font-extrabold text-slate-900 text-base sm:text-lg">
-                أكاديمية علوم التخدير
+              <span className="font-black text-slate-900 text-base sm:text-lg">
+                MED ZONE
               </span>
-              <span className="text-[10px] text-slate-400 block font-medium">
-                Anesthesiology Medical Academy
+              <span className="text-[10px] text-teal-700 block font-bold">
+                الموقع الامتحاني للكلية
               </span>
             </div>
           </div>
@@ -59,28 +66,40 @@ export default async function HomePage() {
         <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-blue-200/30 rounded-full blur-3xl pointer-events-none -z-10" />
 
         <div className="max-w-3xl mx-auto space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-100 text-sky-800 text-xs font-bold border border-sky-200">
-            <Sparkles className="w-4 h-4 text-sky-600" />
-            <span>المنصة المعتمدة للتقييم والاختبارات التخصصية</span>
+          {/* Official Logo Banner */}
+          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-white border border-slate-200/90 shadow-xl shadow-slate-200/60 p-2.5 mx-auto mb-4 flex items-center justify-center">
+            <Image
+              src="/logo.webp"
+              alt="شعار الموقع الامتحاني للكلية - MED ZONE"
+              width={112}
+              height={112}
+              className="w-full h-full object-contain"
+              priority
+            />
+          </div>
+
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-50 text-teal-800 text-xs font-bold border border-teal-200">
+            <Sparkles className="w-4 h-4 text-teal-600" />
+            <span>الموقع الامتحاني المعتمد للكلية • MED ZONE</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-            المنصة الأكاديمية المتخصصة في <br />
-            <span className="bg-gradient-to-r from-sky-600 to-blue-700 bg-clip-text text-transparent">
-              علوم التخدير والإنعاش الطبي
+            المنصة الامتحانية الموحدة للكلية <br />
+            <span className="bg-gradient-to-r from-teal-700 via-sky-700 to-blue-800 bg-clip-text text-transparent">
+              MED ZONE Examination Portal
             </span>
           </h1>
 
           <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto leading-relaxed">
-            منظومة متكاملة لإعداد وجدولة اختبارات أطباء التخدير المقيمين، مع محرك اختبارات متطور ومصحح آلي ذري، مدعومة بقاعدة بيانات Cloudflare D1.
+            منظومة إلكترونية متكاملة لإجراء الاختبارات الطبية، متابعة الأداء الأكاديمي، وإدارة جداول وبنوك الأسئلة وفق أعلى معايير الجودة الأكاديمية.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
             <Link
               href="/login"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-sky-600 to-blue-700 hover:from-sky-700 hover:to-blue-800 shadow-lg shadow-sky-600/25 transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-teal-700 to-sky-700 hover:from-teal-800 hover:to-sky-800 shadow-lg shadow-teal-700/20 transition-all"
             >
-              <span>الدخول إلى منصة الأكاديمية</span>
+              <span>الدخول إلى منصة الامتحانات</span>
               <ArrowLeft className="w-4 h-4" />
             </Link>
           </div>
@@ -122,7 +141,7 @@ export default async function HomePage() {
 
       {/* Footer */}
       <footer className="w-full bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
-        جميع الحقوق محفوظة © {new Date().getFullYear()} أكاديمية علوم التخدير والرعاية المركزة
+        جميع الحقوق محفوظة © {new Date().getFullYear()} MED ZONE • الموقع الامتحاني المعتمد للكلية
       </footer>
     </div>
   );

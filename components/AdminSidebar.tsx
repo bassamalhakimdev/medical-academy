@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -50,9 +51,20 @@ export function AdminSidebar() {
 
   return (
     <aside className="w-full md:w-64 bg-white border-l border-slate-200 shrink-0 flex flex-col md:min-h-[calc(100vh-4rem)] p-4">
-      <div className="mb-4 px-3 py-2 bg-sky-50/50 rounded-xl border border-sky-100">
-        <span className="text-xs font-bold text-sky-900 block">بوابة إدارة الأكاديمية</span>
-        <span className="text-[11px] text-sky-700/80 block mt-0.5">التحكم المركزي بالامتحانات والتقييمات</span>
+      <div className="mb-4 px-3 py-2.5 bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl shadow-xs flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl bg-white p-1 flex items-center justify-center shrink-0">
+          <Image
+            src="/logo.webp"
+            alt="شعار الكلية"
+            width={36}
+            height={36}
+            className="w-full h-full object-contain"
+          />
+        </div>
+        <div>
+          <span className="text-xs font-bold block text-white">إدارة الامتحانات</span>
+          <span className="text-[10px] text-teal-300 block font-medium">MED ZONE • الكلية</span>
+        </div>
       </div>
 
       <nav className="space-y-1.5 flex-1">

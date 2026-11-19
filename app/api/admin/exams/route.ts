@@ -21,7 +21,7 @@ export async function GET() {
     await requireAdmin();
     const sqlite = getRawSqlite();
 
-    const examsList = sqlite
+    const examsList = (await sqlite
       .prepare(`
         SELECT 
           e.id, e.title, e.description, e.status, e.duration_minutes, e.pass_percentage,
@@ -37,7 +37,7 @@ export async function GET() {
         GROUP BY e.id
         ORDER BY e.created_at DESC
       `)
-      .all()
+      .all())
       .map((ex: any) => ({
         ...ex,
         shuffle_questions: Boolean(ex.shuffle_questions),
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
     const now = Date.now();
     const sqlite = getRawSqlite();
 
-    sqlite
+    await sqlite
       .prepare(`
         INSERT INTO exams (
           id, title, description, status, total_questions, pass_percentage, duration_minutes,

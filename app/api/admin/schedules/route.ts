@@ -20,7 +20,7 @@ export async function GET() {
     await requireAdmin();
     const sqlite = getRawSqlite();
 
-    const schedules = sqlite
+    const schedules = (await sqlite
       .prepare(`
         SELECT 
           s.id, s.exam_id, s.schedule_type, s.title, s.target_group, s.target_user_id,
@@ -36,7 +36,7 @@ export async function GET() {
         GROUP BY s.id
         ORDER BY s.created_at DESC
       `)
-      .all()
+      .all())
       .map((sc: any) => ({
         ...sc,
         is_active: Boolean(sc.is_active),
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
     const sqlite = getRawSqlite();
 
     // Verify exam exists and is published
-    const exam = sqlite.prepare("SELECT id, title, status FROM exams WHERE id = ?").get(examId) as any;
+    const exam = (await sqlite.prepare("SELECT id, title, status FROM exams WHERE id = ?").get(examId)) as any;
     if (!exam) {
       return NextResponse.json({ error: "الاختبار المحدد غير موجود" }, { status: 404 });
     }
@@ -108,32 +108,50 @@ export async function POST(req: Request) {
     const scheduleId = generateId();
     const now = Date.now();
 
-    const createScheduleTx = sqlite.transaction(() => {
-      // 1. Insert schedule
-      sqlite
-        .prepare(`
-          INSERT INTO exam_schedules (
-            id, exam_id, schedule_type, title, target_group, target_user_id,
-            start_time, end_time, duration_minutes, is_active, created_at
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
-        `)
-        .run(
-          scheduleId,
-          examId,
-          scheduleType,
-          title.trim(),
-          targetGroup || null,
-          targetUserId || null,
-          startTime,
-          endTime,
-          durationMinutes,
-          now
-        );
+    // 1. Insert schedule
+    await sqlite
+      .prepare(`
+        INSERT INTO exam_schedules (
+          id, exam_id, schedule_type, title, target_group, target_user_id,
+          start_time, end_time, duration_minutes, is_active, created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
+      `)
+      .run(
+        scheduleId,
+        examId,
+        scheduleType,
+        title.trim(),
+        targetGroup || null,
+        targetUserId || null,
+        startTime,
+        endTime,
+        durationMinutes,
+        now
+      );
 
-      // 2. Insert assignments
-      if (scheduleType === "individual" && targetUserId) {
-        sqlite
+    // 2. Insert assignments
+    if (scheduleType === "individual" && targetUserId) {
+      await sqlite
+        .prepare(`
+          INSERT INTO exam_assignments (
+            id, exam_id, schedule_id, user_id, assigned_start_time, assigned_end_time,
+            duration_minutes, status, created_at
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, 'assigned', ?)
+        `)
+        .run(generateId(), examId, scheduleId, targetUserId, startTime, endTime, durationMinutes, now);
+    } else if (scheduleType === "group") {
+      let studentsQuery = "SELECT id FROM users WHERE role = 'student' AND is_active = 1";
+      const params: any[] = [];
+      if (targetGroup && targetGroup !== "all") {
+        studentsQuery += " AND group_tag = ?";
+        params.push(targetGroup);
+      }
+
+      const eligibleStudents = (await sqlite.prepare(studentsQuery).all(...params)) as { id: string }[];
+      for (const st of eligibleStudents) {
+        await sqlite
           .prepare(`
             INSERT INTO exam_assignments (
               id, exam_id, schedule_id, user_id, assigned_start_time, assigned_end_time,
@@ -141,31 +159,9 @@ export async function POST(req: Request) {
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, 'assigned', ?)
           `)
-          .run(generateId(), examId, scheduleId, targetUserId, startTime, endTime, durationMinutes, now);
-      } else if (scheduleType === "group") {
-        let studentsQuery = "SELECT id FROM users WHERE role = 'student' AND is_active = 1";
-        const params: any[] = [];
-        if (targetGroup && targetGroup !== "all") {
-          studentsQuery += " AND group_tag = ?";
-          params.push(targetGroup);
-        }
-
-        const eligibleStudents = sqlite.prepare(studentsQuery).all(...params) as { id: string }[];
-        for (const st of eligibleStudents) {
-          sqlite
-            .prepare(`
-              INSERT INTO exam_assignments (
-                id, exam_id, schedule_id, user_id, assigned_start_time, assigned_end_time,
-                duration_minutes, status, created_at
-              )
-              VALUES (?, ?, ?, ?, ?, ?, ?, 'assigned', ?)
-            `)
-            .run(generateId(), examId, scheduleId, st.id, startTime, endTime, durationMinutes, now);
-        }
+          .run(generateId(), examId, scheduleId, st.id, startTime, endTime, durationMinutes, now);
       }
-    });
-
-    createScheduleTx();
+    }
 
     return NextResponse.json({
       success: true,

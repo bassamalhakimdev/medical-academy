@@ -10,8 +10,12 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "أكاديمية علوم التخدير والإنعاش | Anesthesia Medical Academy",
-  description: "المنصة الأكاديمية الطبية المتخصصة في تدريب واختبارات علوم التخدير والرعاية الحرجة",
+  title: "MED ZONE | الموقع الامتحاني للكلية",
+  description: "المنصة الامتحانية الأكاديمية الرسمية للكلية - MED ZONE Examination Platform",
+  icons: {
+    icon: "/logo.webp",
+    apple: "/logo.webp",
+  },
 };
 
 export default function RootLayout({

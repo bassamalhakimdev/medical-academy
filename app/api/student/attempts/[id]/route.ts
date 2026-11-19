@@ -19,7 +19,7 @@ export async function GET(
     const sqlite = getRawSqlite();
     const now = Date.now();
 
-    const attempt = sqlite
+    const attempt = (await sqlite
       .prepare(`
         SELECT 
           a.id, a.exam_id, a.start_time, a.max_end_time, a.status, a.submit_time,
@@ -29,7 +29,7 @@ export async function GET(
         JOIN exams e ON e.id = a.exam_id
         WHERE a.id = ? AND a.user_id = ?
       `)
-      .get(attemptId, student.id) as any;
+      .get(attemptId, student.id)) as any;
 
     if (!attempt) {
       return NextResponse.json({ error: "محاولة الاختبار غير موجودة" }, { status: 404 });
@@ -54,22 +54,22 @@ export async function GET(
     let questionsList: any[] = [];
     if (questionIds.length > 0) {
       const placeholders = questionIds.map(() => "?").join(",");
-      const rawQuestions = sqlite
+      const rawQuestions = (await sqlite
         .prepare(`
           SELECT id, question_text, points
           FROM questions
           WHERE id IN (${placeholders})
         `)
-        .all(...questionIds) as any[];
+        .all(...questionIds)) as any[];
 
       // Fetch all choices (strictly omitting is_correct!)
-      const rawChoices = sqlite
+      const rawChoices = (await sqlite
         .prepare(`
           SELECT id, question_id, choice_text
           FROM choices
           WHERE question_id IN (${placeholders})
         `)
-        .all(...questionIds) as any[];
+        .all(...questionIds)) as any[];
 
       // Reconstruct strictly following student's saved shuffle orders
       questionsList = questionIds
@@ -94,9 +94,9 @@ export async function GET(
     }
 
     // Fetch already saved answers
-    const savedAnswersRows = sqlite
+    const savedAnswersRows = (await sqlite
       .prepare("SELECT question_id, selected_choice_id, saved_at FROM student_answers WHERE attempt_id = ?")
-      .all(attemptId) as any[];
+      .all(attemptId)) as any[];
 
     const savedAnswers: Record<string, string> = {};
     for (const ans of savedAnswersRows) {
@@ -152,9 +152,9 @@ export async function POST(
     const now = Date.now();
 
     // Verify attempt belongs to student and is in progress
-    const attempt = sqlite
+    const attempt = (await sqlite
       .prepare("SELECT id, max_end_time, status FROM exam_attempts WHERE id = ? AND user_id = ?")
-      .get(attemptId, student.id) as any;
+      .get(attemptId, student.id)) as any;
 
     if (!attempt) {
       return NextResponse.json({ error: "المحاولة غير موجودة" }, { status: 404 });
@@ -170,7 +170,7 @@ export async function POST(
     }
 
     // Verify choice belongs to question
-    const choiceValid = sqlite
+    const choiceValid = await sqlite
       .prepare("SELECT id FROM choices WHERE id = ? AND question_id = ?")
       .get(choiceId, questionId);
 
@@ -180,7 +180,7 @@ export async function POST(
 
     // Upsert student answer
     const answerId = generateId();
-    sqlite
+    await sqlite
       .prepare(`
         INSERT INTO student_answers (id, attempt_id, question_id, selected_choice_id, saved_at)
         VALUES (?, ?, ?, ?, ?)

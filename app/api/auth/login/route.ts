@@ -26,9 +26,9 @@ export async function POST(req: Request) {
     const { email, password } = result.data;
     const sqlite = getRawSqlite();
 
-    const user = sqlite
+    const user = (await sqlite
       .prepare("SELECT id, name, email, password_hash, role, is_active, student_id, group_tag FROM users WHERE email = ?")
-      .get(email.toLowerCase().trim()) as any;
+      .get(email.toLowerCase().trim())) as any;
 
     if (!user) {
       return NextResponse.json(
