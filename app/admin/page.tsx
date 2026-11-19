@@ -88,7 +88,7 @@ export default function AdminDashboardPage() {
             <Badge variant="info">مباشر</Badge>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            متابعة شاملة لأداء أطباء التخدير المقيمين، بنك الأسئلة، والامتحانات المجدولة
+            متابعة شاملة لأداء الطلاب، بنك الأسئلة، والامتحانات المجدولة
           </p>
         </div>
 
@@ -112,7 +112,7 @@ export default function AdminDashboardPage() {
             className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
           >
             <Users className="w-4 h-4 text-slate-500" />
-            <span>إضافة طبيب</span>
+            <span>إضافة طالب</span>
           </Link>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function AdminDashboardPage() {
         {/* Card 1: Students */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500">الأطباء والطلاب</span>
+            <span className="text-xs font-bold text-slate-500">الطلاب</span>
             <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
               <Users className="w-4 h-4" />
             </div>
@@ -231,7 +231,7 @@ export default function AdminDashboardPage() {
               <table className="w-full text-right text-xs">
                 <thead className="bg-slate-50/70 border-b border-slate-100 text-slate-500 font-bold">
                   <tr>
-                    <th className="px-6 py-3">الطبيب / المقيم</th>
+                    <th className="px-6 py-3">الطالب</th>
                     <th className="px-4 py-3">الاختبار</th>
                     <th className="px-4 py-3 text-center">الدرجة</th>
                     <th className="px-4 py-3 text-center">الحالة</th>
@@ -302,7 +302,7 @@ export default function AdminDashboardPage() {
                 href="/admin/students"
                 className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-sky-50 text-slate-700 hover:text-sky-800 transition-colors text-xs font-bold"
               >
-                <span>إدارة حسابات الأطباء والتفعيل</span>
+                <span>إدارة حسابات الطلاب والتفعيل</span>
                 <ArrowUpRight className="w-4 h-4" />
               </Link>
               <Link

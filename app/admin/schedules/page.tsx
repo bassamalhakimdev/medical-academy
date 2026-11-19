@@ -227,7 +227,7 @@ export default function SchedulesPage() {
             <Badge variant="primary">{schedules.length} جدولة</Badge>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            تخصيص الاختبارات لمجموعات الأطباء أو لطلاب محددين مع فترات زمنية ومدد مستقلة
+            تخصيص الاختبارات لدفعات كاملة أو لطلاب محددين مع فترات زمنية ومدد مستقلة
           </p>
         </div>
 
@@ -315,7 +315,7 @@ export default function SchedulesPage() {
                               جدولة جماعية
                             </Badge>
                             <div className="text-[11px] text-slate-600 font-semibold">
-                              {sc.target_group === "all" ? "جميع المقيمين" : sc.target_group}
+                              {sc.target_group === "all" ? "جميع الطلاب" : sc.target_group}
                             </div>
                           </div>
                         ) : (
@@ -368,7 +368,7 @@ export default function SchedulesPage() {
                         <div className="font-bold text-slate-900">
                           {sc.completed_count} / {sc.assigned_count}
                         </div>
-                        <span className="text-[10px] text-slate-400">طبيب أكمل</span>
+                        <span className="text-[10px] text-slate-400">طالب أكمل</span>
                       </td>
 
                       <td className="px-4 py-4 text-center">
@@ -448,7 +448,7 @@ export default function SchedulesPage() {
               type="button"
               onClick={() => {
                 setScheduleType("individual");
-                setTitle("جدولة فردية خاصة لطبيب محدد");
+                setTitle("جدولة فردية خاصة لطالب محدد");
               }}
               className={`flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 scheduleType === "individual"
@@ -495,7 +495,7 @@ export default function SchedulesPage() {
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="مثال: الاختبار الفصلي لمقيمي التخدير (R1)"
+              placeholder="مثال: الاختبار الفصلي - دفعة 2026"
               className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden"
             />
           </div>
@@ -509,7 +509,7 @@ export default function SchedulesPage() {
                 onChange={(e) => setTargetGroup(e.target.value)}
                 className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden font-bold"
               >
-                <option value="all">جميع المقيمين والطلاب النشطين</option>
+                <option value="all">جميع الطلاب النشطين</option>
                 {groupsList.map((g) => (
                   <option key={g} value={g}>
                     {g}
@@ -519,7 +519,7 @@ export default function SchedulesPage() {
             </div>
           ) : (
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">الطبيب المقيم المستهدف</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">الطالب المستهدف</label>
               <select
                 required
                 value={targetUserId}

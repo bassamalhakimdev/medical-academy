@@ -83,7 +83,7 @@ export function Navbar({ user }: NavbarProps) {
                 </div>
               </div>
               <Badge variant={user.role === "admin" ? "primary" : "success"} dot className="text-[10px]">
-                {user.role === "admin" ? "إدارة الأكاديمية" : "طبيب مقيم"}
+                {user.role === "admin" ? "الإدارة" : "طالب"}
               </Badge>
             </div>
 

@@ -287,7 +287,7 @@ export default function ExamEnginePage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Sticky Exam Engine Header */}
-      <div className="sticky top-28 z-20 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-md p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="sticky top-20 z-20 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-md p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-sm sm:text-base font-extrabold text-slate-900 line-clamp-1">

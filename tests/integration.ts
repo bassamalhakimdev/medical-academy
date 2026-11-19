@@ -70,7 +70,7 @@ async function runIntegrationTests() {
 
   // 5. Test Exam Engine Simulation (Attempt, Autosave, Submit, Atomic Grading)
   console.log("5️⃣ Simulating Live Exam Attempt & Grading Cycle...");
-  const testStudent = (await sqlite.prepare("SELECT id, name FROM users WHERE email = 'sara.mansoor@anesthesia-academy.com'").get()) as any;
+  const testStudent = (await sqlite.prepare("SELECT id, name FROM users WHERE email = 'zainab.ghamari@anesthesia-academy.com'").get()) as any;
   const examToTake = (await sqlite.prepare("SELECT id, title, pass_percentage FROM exams WHERE status = 'published' LIMIT 1").get()) as any;
   const scheduleForTest = (await sqlite.prepare("SELECT id, duration_minutes FROM exam_schedules WHERE exam_id = ? AND schedule_type = 'group'").get(examToTake.id)) as any;
 

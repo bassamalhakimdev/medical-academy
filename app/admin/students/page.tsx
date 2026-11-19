@@ -53,7 +53,7 @@ export default function StudentsManagementPage() {
     password: "",
     studentId: "",
     phone: "",
-    groupTag: "دفعة 2026 - المقيمين (R1)",
+    groupTag: "دفعة 2026",
   });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -109,7 +109,7 @@ export default function StudentsManagementPage() {
         password: "",
         studentId: "",
         phone: "",
-        groupTag: "دفعة 2026 - المقيمين (R1)",
+        groupTag: "دفعة 2026",
       });
       fetchStudents();
     } catch (err) {
@@ -203,9 +203,9 @@ export default function StudentsManagementPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              إدارة الأطباء المقيمين والطلاب
+              إدارة الطلاب
             </h1>
-            <Badge variant="primary">{students.length} طبيب</Badge>
+            <Badge variant="primary">{students.length} طالب</Badge>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
             إنشاء الحسابات، ضبط المجموعات الأكاديمية، التعطيل والتفعيل وإعادة تعيين كلمات المرور
@@ -220,7 +220,7 @@ export default function StudentsManagementPage() {
               password: "",
               studentId: `ANES-2026-0${students.length + 1}`,
               phone: "",
-              groupTag: "دفعة 2026 - المقيمين (R1)",
+              groupTag: "دفعة 2026",
             });
             setFormError("");
             setIsAddModalOpen(true);
@@ -228,7 +228,7 @@ export default function StudentsManagementPage() {
           className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-xl shadow-xs transition-colors cursor-pointer shrink-0"
         >
           <UserPlus className="w-4 h-4" />
-          <span>إضافة طبيب جديد</span>
+          <span>إضافة طالب جديد</span>
         </button>
       </div>
 
@@ -275,17 +275,17 @@ export default function StudentsManagementPage() {
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           {loading ? (
-            <div className="py-16 text-center text-xs text-slate-400">جاري تحميل بيانات الأطباء...</div>
+            <div className="py-16 text-center text-xs text-slate-400">جاري تحميل بيانات الطلاب...</div>
           ) : students.length === 0 ? (
             <div className="py-16 text-center">
               <Users className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-xs font-bold text-slate-600">لا يوجد أطباء مطابقين لمعايير البحث</p>
+              <p className="text-xs font-bold text-slate-600">لا يوجد طلاب مطابقون لمعايير البحث</p>
             </div>
           ) : (
             <table className="w-full text-right text-xs">
               <thead className="bg-slate-50/70 border-b border-slate-100 text-slate-500 font-bold">
                 <tr>
-                  <th className="px-6 py-3.5">الطبيب المقيم</th>
+                  <th className="px-6 py-3.5">الطالب</th>
                   <th className="px-4 py-3.5">الرقم الأكاديمي</th>
                   <th className="px-4 py-3.5">المجموعة / الدفعة</th>
                   <th className="px-4 py-3.5 text-center">الحالة</th>
@@ -375,7 +375,7 @@ export default function StudentsManagementPage() {
       <Modal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        title="إضافة طبيب مقيم جديد"
+        title="إضافة طالب جديد"
         description="تسجيل حساب رسمي في الأكاديمية لاختبارات علوم التخدير"
       >
         <form onSubmit={handleCreateStudent} className="space-y-4">
@@ -386,13 +386,13 @@ export default function StudentsManagementPage() {
           )}
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">الاسم الكامل للطبيب</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1">الاسم الكامل للطالب</label>
             <input
               type="text"
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="د. فهد عبد الله الشهراني"
+              placeholder="أسامة عبد الرحمن العريقي"
               className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500"
             />
           </div>
@@ -405,7 +405,7 @@ export default function StudentsManagementPage() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="fahad@anesthesia-academy.com"
+                placeholder="osama@anesthesia-academy.com"
                 dir="ltr"
                 className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500 text-left"
               />
@@ -432,7 +432,7 @@ export default function StudentsManagementPage() {
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+966501234567"
+                placeholder="+967771234567"
                 dir="ltr"
                 className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500 text-left"
               />
@@ -445,7 +445,7 @@ export default function StudentsManagementPage() {
                 required
                 value={formData.groupTag}
                 onChange={(e) => setFormData({ ...formData, groupTag: e.target.value })}
-                placeholder="دفعة 2026 - المقيمين (R1)"
+                placeholder="دفعة 2026"
                 className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500"
               />
             </div>
@@ -497,7 +497,7 @@ export default function StudentsManagementPage() {
       <Modal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        title="تعديل بيانات الطبيب المقيم"
+        title="تعديل بيانات الطالب"
         description="تحديث المعلومات الأكاديمية أو إعادة تعيين كلمة المرور"
       >
         <form onSubmit={handleUpdateStudent} className="space-y-4">

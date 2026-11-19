@@ -6,32 +6,50 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
+  Home,
   Users,
   FileText,
   CalendarDays,
   BarChart3,
   LogOut,
   UserRound,
+  ChevronLeft,
   X,
 } from "lucide-react";
 
-interface AdminShellProps {
+interface AppShellProps {
+  variant: "admin" | "student";
   user: {
     name: string;
     email: string;
+    studentId?: string | null;
   };
   children: React.ReactNode;
 }
 
-const navItems = [
-  { title: "لوحة التحكم", href: "/admin", icon: LayoutDashboard, exact: true },
-  { title: "الطلاب", href: "/admin/students", icon: Users, exact: false },
-  { title: "الاختبارات", href: "/admin/exams", icon: FileText, exact: false },
-  { title: "الجدولة", href: "/admin/schedules", icon: CalendarDays, exact: false },
-  { title: "النتائج", href: "/admin/results", icon: BarChart3, exact: false },
-];
+const NAV = {
+  admin: [
+    { title: "لوحة التحكم", href: "/admin", icon: LayoutDashboard, exact: true },
+    { title: "الطلاب", href: "/admin/students", icon: Users, exact: false },
+    { title: "الاختبارات", href: "/admin/exams", icon: FileText, exact: false },
+    { title: "الجدولة", href: "/admin/schedules", icon: CalendarDays, exact: false },
+    { title: "النتائج", href: "/admin/results", icon: BarChart3, exact: false },
+  ],
+  student: [
+    { title: "الرئيسية", href: "/student", icon: Home, exact: true },
+    { title: "الاختبارات", href: "/student/exams", icon: FileText, exact: false },
+    { title: "النتائج", href: "/student/results", icon: BarChart3, exact: false },
+  ],
+};
 
-export function AdminShell({ user, children }: AdminShellProps) {
+const PROFILE_HREF: Record<AppShellProps["variant"], string | null> = {
+  admin: null,
+  student: "/student/profile",
+};
+
+export function AppShell({ variant, user, children }: AppShellProps) {
+  const navItems = NAV[variant];
+  const profileHref = PROFILE_HREF[variant];
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -150,18 +168,35 @@ export function AdminShell({ user, children }: AdminShellProps) {
           </div>
 
           {/* Profile */}
-          <div className="px-6 py-6 border-b border-slate-100">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-slate-900 text-white font-semibold flex items-center justify-center shrink-0">
-                {initials || <UserRound className="w-5 h-5" />}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
-                <p className="text-xs text-slate-500 truncate" dir="ltr">
-                  {user.email}
-                </p>
-              </div>
-            </div>
+          <div className="px-3 py-4 border-b border-slate-100">
+            {(() => {
+              const content = (
+                <>
+                  <div className="w-12 h-12 rounded-full bg-slate-900 text-white font-semibold flex items-center justify-center shrink-0">
+                    {initials || <UserRound className="w-5 h-5" />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
+                    <p className="text-xs text-slate-500 truncate" dir="ltr">
+                      {user.studentId || user.email}
+                    </p>
+                  </div>
+                </>
+              );
+              return profileHref ? (
+                <Link
+                  href={profileHref}
+                  className={`group flex items-center gap-4 px-3 py-2.5 rounded-xl transition-colors ${
+                    pathname.startsWith(profileHref) ? "bg-slate-50" : "hover:bg-slate-50"
+                  }`}
+                >
+                  {content}
+                  <ChevronLeft className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
+                </Link>
+              ) : (
+                <div className="flex items-center gap-4 px-3 py-2.5">{content}</div>
+              );
+            })()}
           </div>
 
           {/* Navigation */}

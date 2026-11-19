@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
-import { AdminShell } from "@/components/AdminShell";
+import { AppShell } from "@/components/AppShell";
 
 export default async function AdminLayout({
   children,
@@ -18,8 +18,8 @@ export default async function AdminLayout({
   }
 
   return (
-    <AdminShell user={{ name: user.name, email: user.email }}>
+    <AppShell variant="admin" user={{ name: user.name, email: user.email }}>
       {children}
-    </AdminShell>
+    </AppShell>
   );
 }

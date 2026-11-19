@@ -151,7 +151,7 @@ export default function ResultsPage() {
             <Badge variant="primary">{results.length} نتيجة</Badge>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            متابعة نتائج تصحيح اختبارات التخدير، التدقيق في إجابات المقيمين، ومراجعة نسب النجاح
+            متابعة نتائج تصحيح اختبارات التخدير، التدقيق في إجابات الطلاب، ومراجعة نسب النجاح
           </p>
         </div>
       </div>
@@ -163,7 +163,7 @@ export default function ResultsPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="البحث باسم الطبيب، الرقم الأكاديمي، أو عنوان الاختبار..."
+            placeholder="البحث باسم الطالب، الرقم الأكاديمي، أو عنوان الاختبار..."
             className="w-full pl-4 pr-10 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500"
           />
           <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-2.5 pointer-events-none" />
@@ -194,7 +194,7 @@ export default function ResultsPage() {
             <table className="w-full text-right text-xs">
               <thead className="bg-slate-50/70 border-b border-slate-100 text-slate-500 font-bold">
                 <tr>
-                  <th className="px-6 py-3.5">الطبيب المقيم</th>
+                  <th className="px-6 py-3.5">الطالب</th>
                   <th className="px-4 py-3.5">الاختبار</th>
                   <th className="px-4 py-3.5 text-center">الدرجة</th>
                   <th className="px-4 py-3.5 text-center">الإجابات الصحيحة</th>
@@ -267,7 +267,7 @@ export default function ResultsPage() {
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         title="تقرير تفصيلي لنتيجة الاختبار"
-        description="مراجعة شاملة لأسئلة الامتحان واختيارات الطبيب والإجابات المعتمدة"
+        description="مراجعة شاملة لأسئلة الامتحان واختيارات الطالب والإجابات المعتمدة"
         maxWidth="3xl"
       >
         {detailLoading || !detailedResult ? (
@@ -361,7 +361,7 @@ export default function ResultsPage() {
                           <div className="flex items-center gap-1.5">
                             {isStudentSelection && (
                               <span className="text-[10px] px-2 py-0.5 rounded-sm bg-slate-200 text-slate-700 font-bold">
-                                اختيار الطبيب
+                                اختيار الطالب
                               </span>
                             )}
                             {isCorrect && (

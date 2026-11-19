@@ -36,76 +36,90 @@ export async function seedDatabase() {
   const student2Id = generateId();
   const student3Id = generateId();
   const student4Id = generateId();
+  const student5Id = generateId();
 
   await db.insert(users).values([
     {
       id: adminId,
-      name: "د. طارق الحكيم",
+      name: "د. عاصم المناري",
       email: "admin@anesthesia-academy.com",
       passwordHash: adminPasswordHash,
       role: "admin",
       isActive: 1,
       studentId: "ADMIN-01",
-      phone: "+966500000001",
+      phone: "+967770000001",
       groupTag: "الإدارة الأكاديمية",
       createdAt: now,
       updatedAt: now,
     },
     {
       id: student1Id,
-      name: "د. أحمد سامي الزهراني",
-      email: "ahmed.zahrani@anesthesia-academy.com",
+      name: "بسام عبد الحكيم",
+      email: "bassam.abdulhakim@anesthesia-academy.com",
       passwordHash: studentPasswordHash,
       role: "student",
       isActive: 1,
       studentId: "ANES-2026-001",
-      phone: "+966501112233",
-      groupTag: "دفعة 2026 - المقيمين (R1)",
+      phone: "+967771112233",
+      groupTag: "دفعة 2026",
       createdAt: now - 30 * oneDay,
       updatedAt: now,
     },
     {
       id: student2Id,
-      name: "د. سارة خالد المنصور",
-      email: "sara.mansoor@anesthesia-academy.com",
+      name: "زينب الغماري",
+      email: "zainab.ghamari@anesthesia-academy.com",
       passwordHash: studentPasswordHash,
       role: "student",
       isActive: 1,
       studentId: "ANES-2026-002",
-      phone: "+966502223344",
-      groupTag: "دفعة 2026 - المقيمين (R1)",
+      phone: "+967772223344",
+      groupTag: "دفعة 2026",
       createdAt: now - 28 * oneDay,
       updatedAt: now,
     },
     {
       id: student3Id,
-      name: "د. عمر عبد العزيز القحطاني",
-      email: "omar.qahtani@anesthesia-academy.com",
+      name: "علي أحمد",
+      email: "ali.ahmed@anesthesia-academy.com",
       passwordHash: studentPasswordHash,
       role: "student",
       isActive: 1,
       studentId: "ANES-2026-003",
-      phone: "+966503334455",
-      groupTag: "دفعة 2026 - المقيمين (R1)",
+      phone: "+967773334455",
+      groupTag: "دفعة 2026",
       createdAt: now - 25 * oneDay,
       updatedAt: now,
     },
     {
       id: student4Id,
-      name: "د. ريم محمد الدوسري",
-      email: "reem.dosari@anesthesia-academy.com",
+      name: "محمد علي",
+      email: "mohammed.ali@anesthesia-academy.com",
       passwordHash: studentPasswordHash,
       role: "student",
       isActive: 1,
       studentId: "ANES-2025-015",
-      phone: "+966504445566",
-      groupTag: "دفعة 2025 - زمالة التخدير (R2)",
+      phone: "+967774445566",
+      groupTag: "دفعة 2025",
       createdAt: now - 40 * oneDay,
+      updatedAt: now,
+    },
+    {
+      id: student5Id,
+      name: "فهد صالح",
+      email: "fahad.saleh@anesthesia-academy.com",
+      passwordHash: studentPasswordHash,
+      role: "student",
+      isActive: 1,
+      studentId: "ANES-2026-004",
+      phone: "+967775556677",
+      groupTag: "دفعة 2026",
+      createdAt: now - 20 * oneDay,
       updatedAt: now,
     },
   ]);
 
-  console.log("✅ Users created (1 Admin + 4 Students).");
+  console.log("✅ Users created (1 Admin + 5 Students).");
 
   // 2. Exam 1: Airway Management & General Anesthesia
   const exam1Id = generateId();
@@ -696,8 +710,8 @@ export async function seedDatabase() {
     id: schedule1Id,
     examId: exam1Id,
     scheduleType: "group",
-    title: "الاختبار الدوري الأول - دفعة المقيمين 2026",
-    targetGroup: "دفعة 2026 - المقيمين (R1)",
+    title: "الاختبار الدوري الأول - دفعة 2026",
+    targetGroup: "دفعة 2026",
     startTime: now - 2 * oneHour,
     endTime: now + 24 * oneHour,
     durationMinutes: 20,
@@ -749,7 +763,7 @@ export async function seedDatabase() {
     id: schedule2Id,
     examId: exam2Id,
     scheduleType: "group",
-    title: "التقييم الشهري للتخدير الناحي - جميع المقيمين",
+    title: "التقييم الشهري للتخدير الناحي - جميع الطلاب",
     targetGroup: "all",
     startTime: now + 24 * oneHour,
     endTime: now + 48 * oneHour,
@@ -764,7 +778,7 @@ export async function seedDatabase() {
     id: schedule3Id,
     examId: exam2Id,
     scheduleType: "individual",
-    title: "اختبار تعويضي فردي - د. ريم الدوسري",
+    title: "اختبار تعويضي فردي - محمد علي",
     targetUserId: student4Id,
     startTime: now - 1 * oneHour,
     endTime: now + 12 * oneHour,
@@ -808,7 +822,7 @@ export async function seedDatabase() {
       createdAt: now,
     });
 
-    for (const studentId of [student1Id, student2Id, student3Id, student4Id]) {
+    for (const studentId of [student1Id, student2Id, student3Id, student4Id, student5Id]) {
       await db.insert(examAssignments).values({
         id: generateId(),
         examId: demoExam.id,
@@ -895,8 +909,8 @@ export async function seedDatabase() {
   console.log("✅ Exams, Questions, Schedules, Assignments, Attempts, and Results seeded successfully!");
   console.log("--------------------------------------------------------------------------------");
   console.log("🔑 حساب الإدارة (Admin): admin@anesthesia-academy.com / AdminPassword123!");
-  console.log("🎓 حساب الطالب (Student): ahmed.zahrani@anesthesia-academy.com / StudentPass123!");
-  console.log("🎓 حساب الطالب (Student 2): sara.mansoor@anesthesia-academy.com / StudentPass123!");
+  console.log("🎓 حساب الطالب (Student): bassam.abdulhakim@anesthesia-academy.com / StudentPass123!");
+  console.log("🎓 حساب الطالب (Student 2): zainab.ghamari@anesthesia-academy.com / StudentPass123!");
   console.log("--------------------------------------------------------------------------------");
 }
 

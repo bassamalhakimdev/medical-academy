@@ -79,7 +79,7 @@ export default function StudentProfilePage() {
             <p className="text-xs text-slate-500 mt-1 flex items-center gap-2">
               <span className="font-mono font-bold text-sky-700">{profile?.studentId}</span>
               <span>•</span>
-              <span>طبيب مقيم (Resident Physician)</span>
+              <span>طالب</span>
             </p>
           </div>
         </div>

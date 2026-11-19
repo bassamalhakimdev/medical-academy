@@ -99,7 +99,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="doctor@anesthesia-academy.com"
+                  placeholder="student@anesthesia-academy.com"
                   dir="ltr"
                   className="block w-full px-4 py-2.5 pl-10 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all text-left font-mono"
                 />
@@ -167,17 +167,17 @@ export default function LoginPage() {
 
               <button
                 type="button"
-                onClick={() => fillCredentials("sara.mansoor@anesthesia-academy.com", "StudentPass123!")}
+                onClick={() => fillCredentials("zainab.ghamari@anesthesia-academy.com", "StudentPass123!")}
                 className="p-2.5 rounded-xl border border-emerald-100 bg-emerald-50/50 hover:bg-emerald-100/60 text-right transition-colors cursor-pointer group"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900">
                     <Stethoscope className="w-3.5 h-3.5 text-emerald-600" />
-                    طبيب مقيم (اختبار متاح)
+                    طالب (اختبار متاح)
                   </div>
                   <span className="text-[10px] text-emerald-600 font-semibold group-hover:underline">تعبئة</span>
                 </div>
-                <div className="text-[10px] text-slate-500 mt-1 font-mono">sara.mansoor@...</div>
+                <div className="text-[10px] text-slate-500 mt-1 font-mono">zainab.ghamari@...</div>
               </button>
             </div>
           </div>
