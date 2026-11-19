@@ -14,7 +14,6 @@ import {
   Phone,
   Mail,
   GraduationCap,
-  Sparkles,
 } from "lucide-react";
 import { Badge } from "@/components/Badge";
 import { Modal } from "@/components/Modal";
@@ -459,7 +458,6 @@ export default function StudentsManagementPage() {
                 onClick={generateRandomPassword}
                 className="text-[11px] font-bold text-sky-600 hover:text-sky-700 flex items-center gap-1"
               >
-                <Sparkles className="w-3 h-3" />
                 توليد كلمة مرور قوية
               </button>
             </div>
@@ -576,7 +574,6 @@ export default function StudentsManagementPage() {
                 onClick={generateRandomPassword}
                 className="text-[11px] font-bold text-sky-600 hover:text-sky-700 flex items-center gap-1"
               >
-                <Sparkles className="w-3 h-3" />
                 توليد كلمة سر
               </button>
             </div>

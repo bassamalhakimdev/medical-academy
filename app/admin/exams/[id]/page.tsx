@@ -12,7 +12,6 @@ import {
   HelpCircle,
   Save,
   BookOpen,
-  Sparkles,
   FileCheck,
   AlertCircle,
   Clock,

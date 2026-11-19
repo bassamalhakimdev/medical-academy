@@ -47,9 +47,13 @@ const PROFILE_HREF: Record<AppShellProps["variant"], string | null> = {
   student: "/student/profile",
 };
 
+/** Matches Tailwind's `lg` breakpoint, where the sidebar is permanently visible. */
+const DESKTOP_QUERY = "(min-width: 1024px)";
+
 export function AppShell({ variant, user, children }: AppShellProps) {
   const navItems = NAV[variant];
   const profileHref = PROFILE_HREF[variant];
+  const homeHref = navItems[0].href;
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -71,6 +75,25 @@ export function AppShell({ variant, user, children }: AppShellProps) {
     };
   }, [open]);
 
+  // If the window grows to desktop size, the drawer is no longer needed
+  useEffect(() => {
+    const mq = window.matchMedia(DESKTOP_QUERY);
+    const onChange = () => mq.matches && setOpen(false);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  const isDesktop = () => window.matchMedia(DESKTOP_QUERY).matches;
+
+  // Logo: opens the drawer on mobile, goes home on desktop (sidebar is already visible)
+  const onLogoClick = () => (isDesktop() ? router.push(homeHref) : setOpen(true));
+
+  // Avatar: opens the drawer on mobile, opens the profile on desktop (if any)
+  const onAvatarClick = () => {
+    if (!isDesktop()) return setOpen(true);
+    if (profileHref) router.push(profileHref);
+  };
+
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
@@ -83,22 +106,97 @@ export function AppShell({ variant, user, children }: AppShellProps) {
   };
 
   const initials = user.name
+    .replace(/^د\.\s*/, "")
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
     .map((w) => w[0])
     .join("");
 
+  /** Profile → navigation → logout. Shared by the desktop sidebar and the mobile drawer. */
+  const renderMenu = () => {
+    const profileContent = (
+      <>
+        <div className="w-11 h-11 rounded-full bg-slate-900 text-white font-semibold flex items-center justify-center shrink-0">
+          {initials || <UserRound className="w-5 h-5" />}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
+          <p className="text-xs text-slate-500 truncate" dir="ltr">
+            {user.studentId || user.email}
+          </p>
+        </div>
+      </>
+    );
+
+    return (
+      <>
+        {/* Profile */}
+        <div className="px-3 py-4 border-b border-slate-100">
+          {profileHref ? (
+            <Link
+              href={profileHref}
+              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
+                pathname.startsWith(profileHref) ? "bg-slate-50" : "hover:bg-slate-50"
+              }`}
+            >
+              {profileContent}
+              <ChevronLeft className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
+            </Link>
+          ) : (
+            <div className="flex items-center gap-3 px-3 py-2.5">{profileContent}</div>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+          {navItems.map((item) => {
+            const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative flex items-center gap-4 px-4 py-3 rounded-lg text-sm transition-colors ${
+                  active
+                    ? "text-slate-900 font-bold bg-slate-50"
+                    : "text-slate-500 font-medium hover:text-slate-900 hover:bg-slate-50"
+                }`}
+              >
+                {active && (
+                  <span className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-full bg-slate-900" />
+                )}
+                <Icon className="w-[18px] h-[18px]" strokeWidth={1.75} />
+                <span>{item.title}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Logout */}
+        <div className="px-3 py-4 border-t border-slate-100">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50/60 transition-colors cursor-pointer"
+          >
+            <LogOut className="w-[18px] h-[18px]" strokeWidth={1.75} />
+            <span>تسجيل الخروج</span>
+          </button>
+        </div>
+      </>
+    );
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
       {/* ── Header (fixed) ─────────────────────────────────────────── */}
       <header className="fixed top-0 inset-x-0 z-40 h-16 bg-white/90 backdrop-blur-lg border-b border-slate-200/70">
-        <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* Brand — the logo opens the side menu */}
+        <div className="h-full px-4 sm:px-6 flex items-center justify-between">
           <button
             type="button"
-            onClick={() => setOpen(true)}
-            aria-label="فتح القائمة"
+            onClick={onLogoClick}
+            aria-label="MED ZONE"
             aria-expanded={open}
             className="group flex items-center gap-3 cursor-pointer focus:outline-none"
           >
@@ -117,10 +215,9 @@ export function AppShell({ variant, user, children }: AppShellProps) {
             </span>
           </button>
 
-          {/* Signed-in user */}
           <button
             type="button"
-            onClick={() => setOpen(true)}
+            onClick={onAvatarClick}
             title={user.name}
             aria-label={user.name}
             className="w-10 h-10 rounded-full bg-slate-900 text-white text-sm font-semibold flex items-center justify-center ring-4 ring-transparent hover:ring-slate-100 transition-all cursor-pointer"
@@ -130,9 +227,14 @@ export function AppShell({ variant, user, children }: AppShellProps) {
         </div>
       </header>
 
-      {/* ── Side drawer ────────────────────────────────────────────── */}
+      {/* ── Desktop sidebar (always visible on wide screens) ──────── */}
+      <aside className="hidden lg:flex fixed top-16 bottom-0 right-0 z-30 w-64 flex-col bg-white border-l border-slate-200/70">
+        {renderMenu()}
+      </aside>
+
+      {/* ── Mobile drawer (opened from the logo) ──────────────────── */}
       <div
-        className={`fixed inset-0 z-50 transition-opacity duration-300 ${
+        className={`lg:hidden fixed inset-0 z-50 transition-opacity duration-300 ${
           open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden={!open}
@@ -149,7 +251,6 @@ export function AppShell({ variant, user, children }: AppShellProps) {
             open ? "translate-x-0" : "translate-x-full"
           }`}
         >
-          {/* Drawer top */}
           <div className="h-16 px-6 flex items-center justify-between border-b border-slate-100">
             <div className="flex items-center gap-3">
               <Image src="/logo.webp" alt="MED ZONE" width={28} height={28} className="w-7 h-7 object-contain" />
@@ -166,92 +267,25 @@ export function AppShell({ variant, user, children }: AppShellProps) {
               <X className="w-4 h-4" />
             </button>
           </div>
-
-          {/* Profile */}
-          <div className="px-3 py-4 border-b border-slate-100">
-            {(() => {
-              const content = (
-                <>
-                  <div className="w-12 h-12 rounded-full bg-slate-900 text-white font-semibold flex items-center justify-center shrink-0">
-                    {initials || <UserRound className="w-5 h-5" />}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
-                    <p className="text-xs text-slate-500 truncate" dir="ltr">
-                      {user.studentId || user.email}
-                    </p>
-                  </div>
-                </>
-              );
-              return profileHref ? (
-                <Link
-                  href={profileHref}
-                  className={`group flex items-center gap-4 px-3 py-2.5 rounded-xl transition-colors ${
-                    pathname.startsWith(profileHref) ? "bg-slate-50" : "hover:bg-slate-50"
-                  }`}
-                >
-                  {content}
-                  <ChevronLeft className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
-                </Link>
-              ) : (
-                <div className="flex items-center gap-4 px-3 py-2.5">{content}</div>
-              );
-            })()}
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto px-3 py-4">
-            {navItems.map((item) => {
-              const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`relative flex items-center gap-4 px-4 py-3 rounded-lg text-sm transition-colors ${
-                    active
-                      ? "text-slate-900 font-bold bg-slate-50"
-                      : "text-slate-500 font-medium hover:text-slate-900 hover:bg-slate-50"
-                  }`}
-                >
-                  {active && (
-                    <span className="absolute right-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-full bg-slate-900" />
-                  )}
-                  <Icon className="w-[18px] h-[18px]" strokeWidth={1.75} />
-                  <span>{item.title}</span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Logout */}
-          <div className="px-3 py-4 border-t border-slate-100">
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50/60 transition-colors cursor-pointer"
-            >
-              <LogOut className="w-[18px] h-[18px]" strokeWidth={1.75} />
-              <span>تسجيل الخروج</span>
-            </button>
-          </div>
+          {renderMenu()}
         </aside>
       </div>
 
-      {/* ── Content ───────────────────────────────────────────────── */}
-      <main className="flex-1 w-full max-w-7xl mx-auto pt-16">
-        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
-      </main>
+      {/* ── Content + footer (offset by the sidebar on desktop) ───── */}
+      <div className="flex-1 flex flex-col pt-16 lg:pr-64">
+        <main className="flex-1 w-full max-w-6xl mx-auto">
+          <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+        </main>
 
-      {/* ── Footer ────────────────────────────────────────────────── */}
-      <footer className="border-t border-slate-200/70 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between text-xs text-slate-400">
-          <span className="tracking-[0.18em] font-semibold text-slate-500" dir="ltr">
-            MED ZONE
-          </span>
-          <span dir="ltr">© {new Date().getFullYear()}</span>
-        </div>
-      </footer>
+        <footer className="border-t border-slate-200/70 bg-white">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between text-xs text-slate-400">
+            <span className="tracking-[0.18em] font-semibold text-slate-500" dir="ltr">
+              MED ZONE
+            </span>
+            <span dir="ltr">© {new Date().getFullYear()}</span>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }

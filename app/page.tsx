@@ -1,5 +1,4 @@
 import { getCurrentUser } from "@/lib/auth/session";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, KeyRound, PenLine, BarChart3 } from "lucide-react";
@@ -25,9 +24,11 @@ const steps = [
 export default async function HomePage() {
   const user = await getCurrentUser();
 
-  if (user) {
-    redirect(user.role === "admin" ? "/admin" : "/student");
-  }
+  // Signed-in users still see the landing page, but the call-to-action
+  // takes them straight to their dashboard instead of the login form.
+  const cta = user
+    ? { href: user.role === "admin" ? "/admin" : "/student", label: "الدخول إلى لوحتي" }
+    : { href: "/login", label: "تسجيل الدخول" };
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-900">
@@ -51,10 +52,10 @@ export default async function HomePage() {
           </Link>
 
           <Link
-            href="/login"
+            href={cta.href}
             className="inline-flex items-center px-5 h-10 rounded-full text-sm font-semibold text-slate-900 ring-1 ring-slate-300 hover:ring-slate-900 transition-all"
           >
-            تسجيل الدخول
+            {cta.label}
           </Link>
         </div>
       </header>
@@ -82,10 +83,10 @@ export default async function HomePage() {
 
             <div className="mt-12">
               <Link
-                href="/login"
+                href={cta.href}
                 className="group inline-flex items-center gap-3 h-12 px-8 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition-colors"
               >
-                <span>تسجيل الدخول</span>
+                <span>{cta.label}</span>
                 <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
               </Link>
             </div>

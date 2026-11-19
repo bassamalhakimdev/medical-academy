@@ -13,7 +13,6 @@ import {
   Play,
   ArrowRight,
   Calendar,
-  Sparkles,
 } from "lucide-react";
 import { Badge } from "@/components/Badge";
 
@@ -131,7 +130,6 @@ export default function StudentDashboardPage() {
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-200 text-xs font-semibold mb-3 border border-teal-400/20">
-              <Sparkles className="w-3.5 h-3.5" />
               <span>الموقع الامتحاني للكلية • MED ZONE</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
