@@ -15,6 +15,10 @@ import {
   XCircle,
   Activity,
   AlertCircle,
+  Sparkles,
+  ShieldCheck,
+  Cpu,
+  Layers,
 } from "lucide-react";
 import { Badge } from "@/components/Badge";
 
@@ -77,193 +81,224 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              لوحة التحكم والإشراف الأكاديمي
-            </h1>
-            <Badge variant="info">مباشر</Badge>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            متابعة شاملة لأداء أطباء التخدير المقيمين، بنك الأسئلة، والامتحانات المجدولة
-          </p>
-        </div>
+    <div className="space-y-8 animate-fade-in">
+      {/* ============================================================== */}
+      {/* 🚀 Hero Command Header                                        */}
+      {/* ============================================================== */}
+      <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-[#091224] via-[#0b162c] to-[#071020] border border-cyan-500/30 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)]">
+        {/* Subtle grid and decorative glow */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Link
-            href="/admin/exams"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-xl shadow-xs transition-colors"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>إنشاء اختبار</span>
-          </Link>
-          <Link
-            href="/admin/schedules"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
-          >
-            <CalendarCheck className="w-4 h-4 text-slate-500" />
-            <span>جدولة اختبار</span>
-          </Link>
-          <Link
-            href="/admin/students"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
-          >
-            <Users className="w-4 h-4 text-slate-500" />
-            <span>إضافة طبيب</span>
-          </Link>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold mb-3 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00f5a0] animate-pulse" />
+              <span>قمرة المراقبة السريرية والأكاديمية المباشرة</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
+              مركز القيادة والتقييم السريري
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-400 mt-1.5 max-w-2xl leading-relaxed">
+              إدارة شاملة لدفعة أطباء التخدير، رصد الإنجاز اللحظي، تدقيق بنوك الأسئلة، واعتماد نتائج التقييمات التخصصية.
+            </p>
+          </div>
+
+          {/* Quick Action Pods */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Link
+              href="/admin/exams"
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-[#00f5a0] to-[#00e5ff] hover:brightness-110 rounded-xl shadow-[0_0_20px_rgba(0,245,160,0.3)] transition-all cursor-pointer active:scale-95"
+            >
+              <PlusCircle className="w-4 h-4 text-slate-950" />
+              <span>إنشاء اختبار جديد</span>
+            </Link>
+            <Link
+              href="/admin/schedules"
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-cyan-200 bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/30 rounded-xl shadow-[0_0_15px_rgba(6,182,212,0.15)] transition-all cursor-pointer active:scale-95"
+            >
+              <CalendarCheck className="w-4 h-4 text-cyan-400" />
+              <span>جدولة اختبار</span>
+            </Link>
+            <Link
+              href="/admin/students"
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-slate-300 bg-slate-900/80 hover:bg-slate-800 border border-white/10 rounded-xl transition-all cursor-pointer active:scale-95"
+            >
+              <Users className="w-4 h-4 text-slate-400" />
+              <span>إدارة الأطباء</span>
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Metric Cards */}
+      {/* ============================================================== */}
+      {/* 📊 High-Precision Telemetry Metrics (4 Cards)                  */}
+      {/* ============================================================== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Students */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        {/* Metric 1: Residents */}
+        <div className="relative group overflow-hidden rounded-2xl p-5 bg-[#0a1122]/90 border border-white/10 hover:border-cyan-500/40 shadow-lg hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500">الأطباء والطلاب</span>
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <span className="text-xs font-bold text-slate-400">أطباء التخدير والطلاب</span>
+            <div className="w-9 h-9 rounded-xl bg-cyan-950/80 border border-cyan-500/30 text-cyan-400 flex items-center justify-center shadow-[0_0_12px_rgba(6,182,212,0.2)]">
               <Users className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-2xl font-black text-slate-900">
+            <div className="text-3xl font-black text-white font-metric tracking-tight">
               {loading ? "..." : stats?.totalStudents ?? 0}
             </div>
-            <div className="flex items-center gap-2 mt-1.5">
-              <Badge variant="success" className="text-[10px]">
-                {stats?.activeStudents ?? 0} حساب نشط
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="cyber" dot className="text-[10px]">
+                {stats?.activeStudents ?? 0} طبيب نشط
               </Badge>
-              <span className="text-[11px] text-slate-400">في برامج التخصص</span>
+              <span className="text-[10px] text-slate-400 font-medium">دفعة R1 السريرية</span>
             </div>
           </div>
         </div>
 
-        {/* Card 2: Exams */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        {/* Metric 2: Question & Exam Bank */}
+        <div className="relative group overflow-hidden rounded-2xl p-5 bg-[#0a1122]/90 border border-white/10 hover:border-cyan-500/40 shadow-lg hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500">الاختبارات المنشورة</span>
-            <div className="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+            <span className="text-xs font-bold text-slate-400">بنك الاختبارات المعتمدة</span>
+            <div className="w-9 h-9 rounded-xl bg-sky-950/80 border border-sky-500/30 text-sky-400 flex items-center justify-center shadow-[0_0_12px_rgba(14,165,233,0.2)]">
               <FileQuestion className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-2xl font-black text-slate-900">
+            <div className="text-3xl font-black text-white font-metric tracking-tight">
               {loading ? "..." : stats?.publishedExams ?? 0}
             </div>
-            <div className="flex items-center gap-2 mt-1.5">
-              <span className="text-[11px] text-slate-500">
-                من إجمالي {stats?.totalExams ?? 0} اختبار في البنك
-              </span>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="info" className="text-[10px]">
+                من إجمالي {stats?.totalExams ?? 0} اختبار
+              </Badge>
+              <span className="text-[10px] text-slate-400">جاهز للجدولة</span>
             </div>
           </div>
         </div>
 
-        {/* Card 3: Attempts */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        {/* Metric 3: Exam Submissions */}
+        <div className="relative group overflow-hidden rounded-2xl p-5 bg-[#0a1122]/90 border border-white/10 hover:border-emerald-500/40 shadow-lg hover:shadow-[0_0_25px_rgba(16,185,129,0.2)] transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500">المحاولات المكتملة</span>
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <span className="text-xs font-bold text-slate-400">المحاولات السريرية المكتملة</span>
+            <div className="w-9 h-9 rounded-xl bg-emerald-950/80 border border-emerald-500/30 text-[#00f5a0] flex items-center justify-center shadow-[0_0_12px_rgba(0,245,160,0.2)]">
               <Award className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-2xl font-black text-slate-900">
+            <div className="text-3xl font-black text-white font-metric tracking-tight">
               {loading ? "..." : stats?.totalAttempts ?? 0}
             </div>
-            <div className="flex items-center gap-2 mt-1.5">
-              <Badge variant="info" className="text-[10px]">
-                {stats?.activeSchedules ?? 0} جداول نشطة حالياً
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="success" dot className="text-[10px]">
+                {stats?.activeSchedules ?? 0} جداول نشطة
               </Badge>
+              <span className="text-[10px] text-slate-400">تسليمات فورية</span>
             </div>
           </div>
         </div>
 
-        {/* Card 4: Average Score & Pass Rate */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+        {/* Metric 4: Average Score & Pass Rate */}
+        <div className="relative group overflow-hidden rounded-2xl p-5 bg-[#0a1122]/90 border border-white/10 hover:border-cyan-500/40 shadow-lg hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] transition-all">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500">متوسط الدرجات والنجاح</span>
-            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <span className="text-xs font-bold text-slate-400">معدل الاجتياز والكفاءة</span>
+            <div className="w-9 h-9 rounded-xl bg-teal-950/80 border border-[#00f5a0]/30 text-[#00f5a0] flex items-center justify-center shadow-[0_0_12px_rgba(0,245,160,0.2)]">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-4">
-            <div className="text-2xl font-black text-slate-900">
+            <div className="text-3xl font-black text-[#00f5a0] font-metric tracking-tight">
               {loading ? "..." : `${stats?.averageScore ?? 0}%`}
             </div>
-            <div className="flex items-center gap-2 mt-1.5">
-              <span className="text-[11px] text-emerald-600 font-bold">
-                نسبة الاجتياز: {stats?.passRate ?? 0}%
-              </span>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="cyber" className="text-[10px]">
+                نسبة النجاح: {stats?.passRate ?? 0}%
+              </Badge>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Section: Recent Submissions & Quick Navigation */}
+      {/* ============================================================== */}
+      {/* ⚡ Main Content: Recent Submissions & System Watch HUD         */}
+      {/* ============================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Table of Recent Exam Results */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-sky-600" />
-              <h2 className="text-sm font-bold text-slate-900">أحدث تسليمات الاختبارات</h2>
+        {/* Table of Recent Submissions */}
+        <div className="lg:col-span-2 rounded-3xl bg-[#0a1122]/90 border border-white/10 shadow-[0_10px_35px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-slate-900/50">
+            <div className="flex items-center gap-2.5">
+              <Activity className="w-4 h-4 text-[#00f5a0] animate-pulse" />
+              <h2 className="text-sm font-extrabold text-white">
+                أحدث التسليمات والتقييمات المباشرة
+              </h2>
             </div>
             <Link
               href="/admin/results"
-              className="text-xs font-bold text-sky-600 hover:text-sky-700 flex items-center gap-1"
+              className="text-xs font-bold text-cyan-300 hover:text-cyan-200 flex items-center gap-1 transition-colors"
             >
-              عرض جميع النتائج
+              عرض السجل الكامل
               <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           <div className="overflow-x-auto">
             {loading ? (
-              <div className="py-12 text-center text-xs text-slate-400">جاري تحميل البيانات...</div>
+              <div className="py-16 text-center text-xs text-slate-400">
+                جاري سحب أحدث السجلات السريرية...
+              </div>
             ) : recent.length === 0 ? (
-              <div className="py-12 text-center">
-                <AlertCircle className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                <p className="text-xs text-slate-500">لا توجد تسليمات حتى الآن</p>
+              <div className="py-16 text-center">
+                <AlertCircle className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                <p className="text-xs text-slate-400">لا توجد تسليمات مسجلة حتى الآن</p>
               </div>
             ) : (
               <table className="w-full text-right text-xs">
-                <thead className="bg-slate-50/70 border-b border-slate-100 text-slate-500 font-bold">
+                <thead className="bg-[#070d1a] border-b border-white/10 text-slate-400 font-bold">
                   <tr>
-                    <th className="px-6 py-3">الطبيب / المقيم</th>
-                    <th className="px-4 py-3">الاختبار</th>
-                    <th className="px-4 py-3 text-center">الدرجة</th>
-                    <th className="px-4 py-3 text-center">الحالة</th>
-                    <th className="px-6 py-3">التوقيت</th>
+                    <th className="px-6 py-3.5">الطبيب المقيم</th>
+                    <th className="px-4 py-3.5">الاختبار السريري</th>
+                    <th className="px-4 py-3.5 text-center">الدرجة</th>
+                    <th className="px-4 py-3.5 text-center">حالة التقييم</th>
+                    <th className="px-6 py-3.5">التوقيت</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-white/5">
                   {recent.map((sub) => (
-                    <tr key={sub.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-3.5">
-                        <div className="font-bold text-slate-900">{sub.student_name}</div>
-                        <div className="text-[11px] text-slate-400 font-mono">{sub.student_id}</div>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="font-medium text-slate-700 line-clamp-1">{sub.exam_title}</span>
-                      </td>
-                      <td className="px-4 py-3.5 text-center">
-                        <span className="font-extrabold text-sm text-slate-900">
-                          {sub.percentage}%
-                        </span>
-                        <div className="text-[10px] text-slate-400">
-                          ({sub.total_score} من {sub.max_score})
+                    <tr
+                      key={sub.id}
+                      className="hover:bg-cyan-950/20 transition-colors"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-white text-xs">{sub.student_name}</div>
+                        <div className="text-[10px] text-cyan-400/80 font-mono mt-0.5">
+                          {sub.student_id}
                         </div>
                       </td>
-                      <td className="px-4 py-3.5 text-center">
+                      <td className="px-4 py-4">
+                        <span className="font-medium text-slate-200 line-clamp-1">
+                          {sub.exam_title}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-center">
+                        <span className="font-black text-sm text-white font-metric">
+                          {sub.percentage}%
+                        </span>
+                        <div className="text-[10px] text-slate-500 font-mono">
+                          {sub.total_score} / {sub.max_score}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-center">
                         {sub.is_passed ? (
-                          <Badge variant="success">ناجح</Badge>
+                          <Badge variant="cyber" dot>
+                            اجتياز سريري
+                          </Badge>
                         ) : (
-                          <Badge variant="danger">راسب</Badge>
+                          <Badge variant="danger" dot>
+                            دون النصاب
+                          </Badge>
                         )}
                       </td>
-                      <td className="px-6 py-3.5 text-slate-400 text-[11px] whitespace-nowrap">
+                      <td className="px-6 py-4 text-slate-400 text-[11px] font-mono whitespace-nowrap">
                         {formatDate(sub.completed_at)}
                       </td>
                     </tr>
@@ -274,49 +309,68 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Quick Tips & Academic System Info */}
+        {/* System Health & Quick Access Matrix */}
         <div className="space-y-4">
-          <div className="bg-gradient-to-br from-slate-900 to-sky-950 rounded-2xl p-6 text-white shadow-md">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
-                <CheckCircle2 className="w-4 h-4" />
+          {/* Security & Atomic Integrity Card */}
+          <div className="rounded-3xl p-6 bg-gradient-to-br from-[#0c1833] via-[#091224] to-[#070e1c] border border-cyan-500/30 text-white shadow-xl relative overflow-hidden">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center border border-cyan-500/30">
+                <ShieldCheck className="w-4 h-4 text-[#00f5a0]" />
               </div>
-              <h3 className="text-sm font-bold">حالة النظام وقاعدة البيانات</h3>
+              <h3 className="text-sm font-bold">معايير النزاهة السريرية</h3>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed">
-              جميع محاولات الاختبارات وتصحيحاتها تُسجّل بصورة ذرية (Atomic Transactions) على الخادم لحماية سلامة النتائج ومنع تكرار المحاولات.
+              تعتمد المنصة التوثيق الزمني الذري (Atomic Transactions)، حيث يتم احتساب أوقات الإجابة والمحاولات مباشرة عبر ساعة الخادم دون الاعتماد على متصفح العميل لمنع أي تلاعب.
             </p>
-            <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-sky-300">
-              <span>Cloudflare D1 SQLite</span>
-              <span className="px-2 py-0.5 rounded-sm bg-emerald-500/20 text-emerald-400 font-bold">
-                متصل وجاهز
-              </span>
+
+            <div className="mt-4 pt-4 border-t border-white/10 space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-mono">
+                <span className="text-slate-400">حالة المزامنة:</span>
+                <span className="text-[#00f5a0] font-bold flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00f5a0] animate-pulse" />
+                  مزامنة لحظية نشطة
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-[11px] font-mono">
+                <span className="text-slate-400">محرك قواعد البيانات:</span>
+                <span className="text-cyan-300">Neon / Serverless DB</span>
+              </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
-            <h3 className="text-sm font-bold text-slate-900 mb-3">روابط الإدارة السريعة</h3>
+          {/* Quick Shortcuts */}
+          <div className="rounded-3xl p-6 bg-[#0a1122]/90 border border-white/10 shadow-lg">
+            <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">
+              الوصول السريع للأنظمة
+            </h3>
             <div className="space-y-2">
               <Link
                 href="/admin/students"
-                className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-sky-50 text-slate-700 hover:text-sky-800 transition-colors text-xs font-bold"
+                className="flex items-center justify-between p-3 rounded-xl bg-slate-900/80 hover:bg-cyan-950/40 border border-white/5 hover:border-cyan-500/30 text-slate-300 hover:text-white transition-all text-xs font-bold group"
               >
-                <span>إدارة حسابات الأطباء والتفعيل</span>
-                <ArrowUpRight className="w-4 h-4" />
+                <span>إدارة حسابات الأطباء والتفعيل الأكاديمي</span>
+                <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
               </Link>
               <Link
                 href="/admin/exams"
-                className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-sky-50 text-slate-700 hover:text-sky-800 transition-colors text-xs font-bold"
+                className="flex items-center justify-between p-3 rounded-xl bg-slate-900/80 hover:bg-cyan-950/40 border border-white/5 hover:border-cyan-500/30 text-slate-300 hover:text-white transition-all text-xs font-bold group"
               >
-                <span>إضافة وتعديل أسئلة التخدير (MCQ)</span>
-                <ArrowUpRight className="w-4 h-4" />
+                <span>محرر أسئلة التخدير والمحاكاة السريرية (MCQ)</span>
+                <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
               </Link>
               <Link
                 href="/admin/schedules"
-                className="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-sky-50 text-slate-700 hover:text-sky-800 transition-colors text-xs font-bold"
+                className="flex items-center justify-between p-3 rounded-xl bg-slate-900/80 hover:bg-cyan-950/40 border border-white/5 hover:border-cyan-500/30 text-slate-300 hover:text-white transition-all text-xs font-bold group"
               >
-                <span>جدولة جماعية أو فردية للطلاب</span>
-                <ArrowUpRight className="w-4 h-4" />
+                <span>جدولة فترات التقديم (الجماعية والتعويضية)</span>
+                <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
+              </Link>
+              <Link
+                href="/admin/results"
+                className="flex items-center justify-between p-3 rounded-xl bg-slate-900/80 hover:bg-cyan-950/40 border border-white/5 hover:border-cyan-500/30 text-slate-300 hover:text-white transition-all text-xs font-bold group"
+              >
+                <span>سجل الدرجات ومصفوفة التحليل الإحصائي</span>
+                <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
               </Link>
             </div>
           </div>
