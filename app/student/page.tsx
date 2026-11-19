@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Activity,
@@ -15,10 +14,6 @@ import {
   ArrowRight,
   Calendar,
   Sparkles,
-  Stethoscope,
-  ChevronLeft,
-  Flame,
-  ShieldCheck,
 } from "lucide-react";
 import { Badge } from "@/components/Badge";
 
@@ -97,7 +92,7 @@ export default function StudentDashboardPage() {
       const resData = await res.json();
 
       if (!res.ok || !resData.success) {
-        setErrorMsg(resData.error || "تعذر بدء الاختبار حالياً. يرجى مراجعة إدارة الكلية.");
+        setErrorMsg(resData.error || "تعذر بدء الاختبار حالياً");
         setStartingExamId(null);
         return;
       }
@@ -121,107 +116,71 @@ export default function StudentDashboardPage() {
 
   if (loading) {
     return (
-      <div className="py-24 text-center">
-        <div className="w-10 h-10 border-2 border-cyan-500/20 border-t-[#00f5a0] rounded-full animate-spin mx-auto mb-3" />
-        <span className="text-xs text-slate-400 font-mono">
-          جاري مزامنة الملف الأكاديمي وجداول الاختبارات...
-        </span>
+      <div className="py-24 text-center text-xs text-slate-400">
+        جاري تحميل جدول الاختبارات والملف الأكاديمي...
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* ============================================================== */}
-      {/* 💳 Holographic Resident Medical ID Card                        */}
-      {/* ============================================================== */}
-      <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-[#0a1428] via-[#0d1d3a] to-[#071022] border-2 border-cyan-500/30 shadow-[0_12px_45px_-10px_rgba(0,0,0,0.85)]">
-        {/* Glow ambient */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#00f5a0]/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="space-y-8">
+      {/* Welcome Banner */}
+      <div className="bg-gradient-to-r from-sky-900 via-blue-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-sky-950/10 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-start gap-4">
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-950 border-2 border-cyan-500/40 p-2 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
-              <Image
-                src="/logo.webp"
-                alt="شعار الكلية"
-                width={70}
-                height={70}
-                className="w-full h-full object-contain"
-              />
-              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#00f5a0] border-2 border-slate-950 flex items-center justify-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-950" />
-              </span>
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-200 text-xs font-semibold mb-3 border border-teal-400/20">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>الموقع الامتحاني للكلية • MED ZONE</span>
             </div>
-
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/70 border border-cyan-500/30 text-cyan-300 text-xs font-bold mb-2 shadow-[0_0_12px_rgba(6,182,212,0.15)]">
-                <Stethoscope className="w-3.5 h-3.5 text-[#00f5a0]" />
-                <span>طبيب مقيم معتمد • كلية علوم التخدير</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                د. {data?.student?.name}
-              </h1>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300 mt-2">
-                <span className="bg-slate-950/70 px-2.5 py-1 rounded-lg border border-white/10 font-mono text-cyan-300">
-                  ID: {data?.student?.studentId}
-                </span>
-                <span>•</span>
-                <span className="text-slate-400 font-medium">{data?.student?.groupTag}</span>
-                <span>•</span>
-                <span className="text-[#00f5a0] font-bold flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00f5a0] animate-pulse" />
-                  حساب نشط ومؤهل للاختبارات
-                </span>
-              </div>
-            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              أهلاً بك، {data?.student?.name}
+            </h1>
+            <p className="text-sm text-sky-200/80 mt-1 flex items-center gap-3">
+              <span>الرقم الأكاديمي: <strong className="text-white font-mono">{data?.student?.studentId}</strong></span>
+              <span>•</span>
+              <span>{data?.student?.groupTag}</span>
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
             <Link
               href="/student/results"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900/80 hover:bg-cyan-950/60 border border-cyan-500/30 text-xs font-bold text-cyan-200 transition-all shadow-[0_0_15px_rgba(6,182,212,0.15)] hover:border-cyan-400"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition-colors border border-white/10"
             >
-              <Award className="w-4 h-4 text-[#00f5a0]" />
-              <span>سجل كفاءتي السريرية</span>
-              <ChevronLeft className="w-3.5 h-3.5" />
+              <Award className="w-4 h-4 text-sky-300" />
+              <span>سجل نتائجي</span>
             </Link>
           </div>
         </div>
       </div>
 
       {errorMsg && (
-        <div className="p-4 rounded-2xl bg-rose-950/70 border border-rose-500/40 text-rose-200 text-xs font-bold flex items-center gap-2 shadow-[0_0_20px_rgba(244,63,94,0.2)]">
-          <AlertCircle className="w-4 h-4 shrink-0 text-rose-400 animate-pulse" />
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{errorMsg}</span>
         </div>
       )}
 
-      {/* ============================================================== */}
-      {/* 🔴 Available Live Exam Pods (Ready to start now)                */}
-      {/* ============================================================== */}
+      {/* Available Exams Section (Ready to take now) */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-3 h-3 rounded-full bg-[#00f5a0] animate-pulse shadow-[0_0_12px_#00f5a0]" />
-            <h2 className="text-base sm:text-lg font-black text-white">
-              الاختبارات الجاهزة للتقديم الآن ({data?.availableExams.length ?? 0})
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
+              الاختبارات المتاحة للتقديم الآن ({data?.availableExams.length ?? 0})
             </h2>
           </div>
-          <span className="text-xs text-cyan-400 font-mono font-bold bg-cyan-950/60 px-2.5 py-1 rounded-full border border-cyan-500/30">
-            نافذة التقييم مفتوحة
-          </span>
+          <span className="text-xs text-slate-500 font-semibold">نافذة الاختبار مفتوحة</span>
         </div>
 
         {data?.availableExams.length === 0 ? (
-          <div className="rounded-3xl p-10 text-center bg-[#0a1122]/80 border border-white/10 shadow-lg">
-            <CheckCircle2 className="w-12 h-12 text-[#00f5a0] mx-auto mb-3" />
-            <h3 className="text-sm font-bold text-white">
-              لا توجد اختبارات تنتظر التقديم في هذه اللحظة
-            </h3>
-            <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto leading-relaxed">
-              لقد أكملت جميع الاختبارات المقررة بنجاح، أو لم يحن موعد فتح الجلسات القادمة بعد. يمكنك مراجعة سجلك السريري أدناه.
+          <div className="bg-white rounded-2xl p-8 text-center border border-slate-200/80 shadow-xs">
+            <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
+            <h3 className="text-xs font-bold text-slate-800">لا توجد اختبارات تنتظر التقديم حالياً</h3>
+            <p className="text-[11px] text-slate-500 mt-1">
+              لقد أكملت جميع الاختبارات المجدولة حالياً، أو لم يحن موعد الاختبارات القادمة بعد.
             </p>
           </div>
         ) : (
@@ -229,66 +188,54 @@ export default function StudentDashboardPage() {
             {data?.availableExams.map((ex) => (
               <div
                 key={ex.exam_id}
-                className="relative group rounded-3xl p-6 bg-gradient-to-br from-[#0c1833] via-[#0a1329] to-[#070e1c] border-2 border-cyan-500/40 shadow-[0_10px_35px_rgba(0,0,0,0.7)] hover:border-[#00f5a0] hover:shadow-[0_0_30px_rgba(0,245,160,0.2)] flex flex-col justify-between transition-all"
+                className="bg-white rounded-2xl border-2 border-sky-500/40 p-6 shadow-md shadow-sky-500/5 flex flex-col justify-between hover:border-sky-500 transition-all"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">
-                    <Badge variant={ex.in_progress ? "warning" : "cyber"} dot>
-                      {ex.in_progress ? "محاولة جارية الآن" : "متاح للبدء الفوري"}
+                    <Badge variant={ex.in_progress ? "warning" : "success"}>
+                      {ex.in_progress ? "محاولة قيد الإنجاز" : "متاح للبدء"}
                     </Badge>
-                    <span className="text-xs font-bold text-cyan-300 flex items-center gap-1 font-mono">
-                      <Clock className="w-3.5 h-3.5 text-cyan-400" />
+                    <span className="text-xs font-bold text-slate-500 flex items-center gap-1 font-mono">
+                      <Clock className="w-3.5 h-3.5 text-sky-600" />
                       {ex.duration_minutes} دقيقة
                     </span>
                   </div>
 
-                  <h3 className="text-base font-black text-white leading-snug">
+                  <h3 className="text-base font-extrabold text-slate-900 leading-snug">
                     {ex.exam_title}
                   </h3>
-                  <p className="text-xs text-slate-400 mt-2 line-clamp-2 leading-relaxed">
-                    {ex.exam_description ||
-                      "اختبار سريري متخصص في علوم التخدير والرعاية المركزة وتدبير المجرى الهوائي."}
+                  <p className="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">
+                    {ex.exam_description || "اختبار تخصصي في علوم التخدير والرعاية السريرية."}
                   </p>
 
-                  <div className="grid grid-cols-3 gap-2 mt-5 pt-4 border-t border-white/10 text-center">
-                    <div className="bg-slate-950/60 p-2.5 rounded-xl border border-white/5">
-                      <span className="text-[10px] text-slate-400 block font-medium">الأسئلة</span>
-                      <span className="font-black text-white font-metric text-xs">
-                        {ex.total_questions} MCQ
-                      </span>
+                  <div className="flex items-center gap-4 mt-4 pt-4 border-t border-slate-100 text-xs text-slate-600">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block font-bold">الأسئلة</span>
+                      <span className="font-extrabold text-slate-800 font-mono">{ex.total_questions} سؤال MCQ</span>
                     </div>
-                    <div className="bg-slate-950/60 p-2.5 rounded-xl border border-white/5">
-                      <span className="text-[10px] text-slate-400 block font-medium">النجاح</span>
-                      <span className="font-black text-[#00f5a0] font-metric text-xs">
-                        {ex.pass_percentage}%
-                      </span>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block font-bold">نسبة النجاح</span>
+                      <span className="font-extrabold text-emerald-600 font-mono">{ex.pass_percentage}%</span>
                     </div>
-                    <div className="bg-slate-950/60 p-2.5 rounded-xl border border-white/5">
-                      <span className="text-[10px] text-slate-400 block font-medium">الجدولة</span>
-                      <span className="font-bold text-cyan-300 text-[11px] truncate block">
-                        {ex.schedule_title}
-                      </span>
+                    <div className="mr-auto text-left">
+                      <span className="text-[10px] text-slate-400 block font-bold">الجدولة</span>
+                      <span className="font-semibold text-slate-700">{ex.schedule_title}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-white/10">
+                <div className="mt-6 pt-4 border-t border-slate-100">
                   <button
                     onClick={() => handleStartExam(ex.exam_id)}
                     disabled={startingExamId === ex.exam_id}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl text-xs font-extrabold text-slate-950 bg-gradient-to-r from-[#00f5a0] to-[#00e5ff] hover:brightness-110 shadow-[0_0_20px_rgba(0,245,160,0.3)] active:scale-98 disabled:opacity-50 transition-all cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 shadow-md shadow-sky-600/20 disabled:opacity-50 transition-all cursor-pointer"
                   >
                     {startingExamId === ex.exam_id ? (
-                      <span className="inline-flex items-center gap-2">
-                        <span className="w-3.5 h-3.5 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin" />
-                        جاري تهيئة قمرة الاختبار...
-                      </span>
+                      <span>جاري بدء محاولة الاختبار...</span>
                     ) : (
                       <>
                         <Play className="w-4 h-4 fill-current" />
-                        <span>
-                          {ex.in_progress ? "استئناف الاختبار السريري" : "دخول قمرة الاختبار الآن"}
-                        </span>
+                        <span>{ex.in_progress ? "استئناف الاختبار الجاري" : "بدء الاختبار الآن"}</span>
                       </>
                     )}
                   </button>
@@ -299,22 +246,20 @@ export default function StudentDashboardPage() {
         )}
       </section>
 
-      {/* ============================================================== */}
-      {/* 📅 Two Columns: Upcoming Schedules & Recent Results           */}
-      {/* ============================================================== */}
+      {/* Two columns: Upcoming Exams & Recent Results */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Upcoming Exams */}
-        <div className="rounded-3xl bg-[#0a1122]/90 border border-white/10 shadow-lg p-6 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-white/10">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-cyan-400" />
-              <h3 className="text-sm font-extrabold text-white">الاختبارات القادمة المجدولة</h3>
+              <Calendar className="w-4 h-4 text-sky-600" />
+              <h3 className="text-sm font-bold text-slate-900">الاختبارات القادمة المجدولة</h3>
             </div>
             <Badge variant="neutral">{data?.upcomingExams.length ?? 0}</Badge>
           </div>
 
           {data?.upcomingExams.length === 0 ? (
-            <div className="py-10 text-center text-xs text-slate-400">
+            <div className="py-8 text-center text-xs text-slate-400">
               لا توجد اختبارات قادمة مجدولة في الوقت الحالي
             </div>
           ) : (
@@ -322,17 +267,17 @@ export default function StudentDashboardPage() {
               {data?.upcomingExams.map((up) => (
                 <div
                   key={up.exam_id}
-                  className="p-4 rounded-2xl bg-[#070d1a] border border-white/5 hover:border-cyan-500/30 transition-all flex items-center justify-between"
+                  className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 flex items-center justify-between"
                 >
                   <div>
-                    <h4 className="text-xs font-bold text-white">{up.exam_title}</h4>
-                    <span className="text-[11px] text-slate-400 block mt-0.5">
+                    <h4 className="text-xs font-bold text-slate-900">{up.exam_title}</h4>
+                    <span className="text-[11px] text-slate-500 block mt-0.5 font-medium">
                       {up.schedule_title} • المدة: {up.duration_minutes} دقيقة
                     </span>
                   </div>
                   <div className="text-left font-mono">
-                    <span className="text-[10px] text-slate-500 block">يبدأ في</span>
-                    <span className="text-xs font-bold text-cyan-300">
+                    <span className="text-[10px] text-slate-400 block font-bold">يبدأ في</span>
+                    <span className="text-xs font-bold text-sky-700">
                       {formatDateTime(up.assigned_start_time)}
                     </span>
                   </div>
@@ -343,23 +288,23 @@ export default function StudentDashboardPage() {
         </div>
 
         {/* Recent Results */}
-        <div className="rounded-3xl bg-[#0a1122]/90 border border-white/10 shadow-lg p-6 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-white/10">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <Award className="w-4 h-4 text-[#00f5a0]" />
-              <h3 className="text-sm font-extrabold text-white">سجل النتائج الأخير</h3>
+              <Award className="w-4 h-4 text-emerald-600" />
+              <h3 className="text-sm font-bold text-slate-900">آخر النتائج المسجلة</h3>
             </div>
             <Link
               href="/student/results"
-              className="text-xs font-bold text-cyan-300 hover:text-cyan-200"
+              className="text-xs font-bold text-sky-600 hover:text-sky-700"
             >
-              عرض السجل الكامل
+              عرض الكل
             </Link>
           </div>
 
           {data?.recentResults.length === 0 ? (
-            <div className="py-10 text-center text-xs text-slate-400">
-              لم تسجل أي نتائج اختبارات حتى الآن
+            <div className="py-8 text-center text-xs text-slate-400">
+              لم تسجل أي نتائج حتى الآن
             </div>
           ) : (
             <div className="space-y-3">
@@ -367,34 +312,30 @@ export default function StudentDashboardPage() {
                 <Link
                   key={res.id}
                   href={`/student/results/${res.id}`}
-                  className="p-4 rounded-2xl bg-[#070d1a] border border-white/5 hover:border-cyan-500/40 hover:bg-cyan-950/20 transition-all flex items-center justify-between group"
+                  className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 hover:bg-sky-50/50 transition-colors flex items-center justify-between group"
                 >
                   <div>
-                    <h4 className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">
+                    <h4 className="text-xs font-bold text-slate-900 group-hover:text-sky-700 transition-colors">
                       {res.exam_title}
                     </h4>
-                    <span className="text-[10px] text-slate-500 block mt-0.5 font-mono">
+                    <span className="text-[10px] text-slate-400 block mt-0.5 font-mono">
                       {formatDateTime(res.completed_at)}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="text-center">
-                      <span className="text-sm font-black text-white font-metric block leading-tight">
+                    <div className="text-center font-mono">
+                      <span className="text-sm font-black text-slate-900 block leading-tight">
                         {res.percentage}%
                       </span>
-                      <span className="text-[9px] text-slate-500 font-mono">
-                        {res.total_score}/{res.max_score}
+                      <span className="text-[9px] text-slate-400">
+                        ({res.total_score}/{res.max_score})
                       </span>
                     </div>
                     {res.is_passed ? (
-                      <Badge variant="cyber" dot>
-                        اجتياز
-                      </Badge>
+                      <Badge variant="success">ناجح</Badge>
                     ) : (
-                      <Badge variant="danger" dot>
-                        إعادة
-                      </Badge>
+                      <Badge variant="danger">راسب</Badge>
                     )}
                   </div>
                 </Link>

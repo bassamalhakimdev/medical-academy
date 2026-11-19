@@ -413,6 +413,282 @@ export async function seedDatabase() {
     }
   }
 
+  // 4b. Exam 4: Intraoperative Monitoring & ECG (Demo Exam - 2 Questions)
+  const exam4Id = generateId();
+  await db.insert(exams).values({
+    id: exam4Id,
+    title: "مراقبة العلامات الحيوية وتخطيط القلب أثناء التخدير (Intraoperative Monitoring & ECG)",
+    description: "اختبار تجريبي سريع لتقييم مهارات مراقبة الدورة الدموية، تخطيط القلب الكهربائي، وقراءات مخطط غاز ثاني أكسيد الكربون (Capnography).",
+    status: "published",
+    totalQuestions: 2,
+    passPercentage: 70,
+    durationMinutes: 10,
+    shuffleQuestions: 1,
+    shuffleChoices: 1,
+    showResultsImmediately: 1,
+    allowReviewAnswers: 1,
+    createdBy: adminId,
+    createdAt: now - 4 * oneDay,
+    updatedAt: now - 4 * oneDay,
+  });
+
+  const exam4QuestionsData = [
+    {
+      text: "ما هو التفسير السريري الأكثر ترجيحاً للهبوط المفاجئ والسريع لمنحنى قياس غاز ثاني أكسيد الكربون (End-Tidal CO2) إلى الصفر أثناء التهوية الآلية؟",
+      points: 1,
+      explanation: "الانخفاض المفاجئ التام لمستوى الـ ETCO2 إلى الصفر يشير إلى توقف تدفق الغاز الرئوي نحو الجهاز، وأشهر أسبابه انقطاع وصلة دارة التخدير أو خلع أنبوب التنبيب الرغامي (Accidental Extubation) أو توقف القلب الحاد.",
+      choices: [
+        { text: "انقطاع التوصيل الرغامي أو خلع أنبوب التنبيب (Accidental Extubation)", isCorrect: true },
+        { text: "ارتفاع درجة حرارة المريض المفاجئ (Hyperthermia)", isCorrect: false },
+        { text: "زيادة النتاج القلبي السريع", isCorrect: false },
+        { text: "انسداد جزئي طفيف في مجرى اللعاب", isCorrect: false },
+      ],
+    },
+    {
+      text: "في مراقبة تخطيط القلب الكهربائي (ECG) القياسي داخل غرفة العمليات، أي اتجاه (Lead) يُعتبر الأكثر حساسية للكشف عن اضطرابات النظم ونقص تروية الجدار السفلي؟",
+      points: 1,
+      explanation: "الاتجاه الثاني (Lead II) يوازي المحور الكهربائي الرئيسي للأذينين والبطينين، مما يجعله الأمثل لرؤية موجة P وتشخيص اضطرابات النظم، وتحري نقص التروية في الشريان الإكليلي الأيمن والجدار السفلي.",
+      choices: [
+        { text: "الاتجاه الثاني (Lead II)", isCorrect: true },
+        { text: "الاتجاه الأول (Lead I)", isCorrect: false },
+        { text: "الاتجاه المعزول (Lead aVR)", isCorrect: false },
+        { text: "الاتجاه الصدري الخامس (Lead V5)", isCorrect: false },
+      ],
+    },
+  ];
+
+  for (let i = 0; i < exam4QuestionsData.length; i++) {
+    const qData = exam4QuestionsData[i];
+    const questionId = generateId();
+    await db.insert(questions).values({
+      id: questionId,
+      examId: exam4Id,
+      questionText: qData.text,
+      points: qData.points,
+      explanation: qData.explanation,
+      orderIndex: i + 1,
+      createdAt: now,
+    });
+
+    for (let j = 0; j < qData.choices.length; j++) {
+      const cData = qData.choices[j];
+      await db.insert(choices).values({
+        id: generateId(),
+        questionId: questionId,
+        choiceText: cData.text,
+        isCorrect: cData.isCorrect ? 1 : 0,
+        orderIndex: j + 1,
+      });
+    }
+  }
+
+  // 4c. Exam 5: Fluid Resuscitation & Transfusion (Demo Exam - 2 Questions)
+  const exam5Id = generateId();
+  await db.insert(exams).values({
+    id: exam5Id,
+    title: "إنعاش السوائل ونقل الدم في العمليات الجراحية (Fluid Resuscitation & Transfusion)",
+    description: "اختبار تجريبي يركز على توازن السوائل، محاليل التبلور والغرائيات، وتدبير نقل الدم الكتلي ومضاعفاته.",
+    status: "published",
+    totalQuestions: 2,
+    passPercentage: 70,
+    durationMinutes: 10,
+    shuffleQuestions: 1,
+    shuffleChoices: 1,
+    showResultsImmediately: 1,
+    allowReviewAnswers: 1,
+    createdBy: adminId,
+    createdAt: now - 3 * oneDay,
+    updatedAt: now - 3 * oneDay,
+  });
+
+  const exam5QuestionsData = [
+    {
+      text: "ما هي النسبة الموصى بها في بروتوكول نقل الدم الكتلي (Massive Transfusion Protocol - MTP) لمكونات (الدم المكدس pRBCs : البلازما الطازجة FFP : الصفائح Platelets) للحد من اعتلال التخثر؟",
+      points: 1,
+      explanation: "توصي بروتوكولات الإنعاش الهجومي ونقل الدم الكتلي بنسبة متوازنة 1:1:1 لمحاكاة تكوين الدم الكامل والوقاية من اعتلال التخثر التخفيفي القاتل لدى مرضى النزف الحاد.",
+      choices: [
+        { text: "1:1:1 (وحدة دم مكدس : وحدة بلازما : وحدة صفائح)", isCorrect: true },
+        { text: "4:1:1 (أربع وحدات دم مكدس : وحدة بلازما : وحدة صفائح)", isCorrect: false },
+        { text: "6:2:1 (ست وحدات دم مكدس : وحدتا بلازما : وحدة صفائح)", isCorrect: false },
+        { text: "2:1:0 (وحدتا دم مكدس : وحدة بلازما دون صفائح)", isCorrect: false },
+      ],
+    },
+    {
+      text: "ما هو الاضطراب الإلكتروليتي الأكثر حدوثاً والمهدد للحياة الناتج عن نقل كميات كبيرة وسريعة من الدم المحفوظ بمادة السترات (Citrate Toxicity)؟",
+      points: 1,
+      explanation: "ترتبط مادة السترات الحافظة لأكياس الدم بالكالسيوم المتأين في دم المريض مسببة هبوطاً حاداً في الكالسيوم المتأين (Hypocalcemia)، مما قد يسبب هبوط النتاج القلبي والضغط وتطاول فترة QT.",
+      choices: [
+        { text: "نقص كالسيوم الدم المتأين الحاد (Hypocalcemia)", isCorrect: true },
+        { text: "فرط كالسيوم الدم الشديد (Hypercalcemia)", isCorrect: false },
+        { text: "فرط فوسفات الدم الحاد", isCorrect: false },
+        { text: "نقص بوتاسيوم الدم المزمن", isCorrect: false },
+      ],
+    },
+  ];
+
+  for (let i = 0; i < exam5QuestionsData.length; i++) {
+    const qData = exam5QuestionsData[i];
+    const questionId = generateId();
+    await db.insert(questions).values({
+      id: questionId,
+      examId: exam5Id,
+      questionText: qData.text,
+      points: qData.points,
+      explanation: qData.explanation,
+      orderIndex: i + 1,
+      createdAt: now,
+    });
+
+    for (let j = 0; j < qData.choices.length; j++) {
+      const cData = qData.choices[j];
+      await db.insert(choices).values({
+        id: generateId(),
+        questionId: questionId,
+        choiceText: cData.text,
+        isCorrect: cData.isCorrect ? 1 : 0,
+        orderIndex: j + 1,
+      });
+    }
+  }
+
+  // 4d. Exam 6: Obstetric & Pediatric Anesthesia (Demo Exam - 2 Questions)
+  const exam6Id = generateId();
+  await db.insert(exams).values({
+    id: exam6Id,
+    title: "التخدير في طب التوليد وجراحة الأطفال (Obstetric & Pediatric Anesthesia)",
+    description: "اختبار تقييمي سريع حول خصوصية التخدير لدى الحوامل والتغيرات الفسيولوجية، بالإضافة لتدبير مجرى الهواء للأطفال.",
+    status: "published",
+    totalQuestions: 2,
+    passPercentage: 70,
+    durationMinutes: 10,
+    shuffleQuestions: 1,
+    shuffleChoices: 1,
+    showResultsImmediately: 1,
+    allowReviewAnswers: 1,
+    createdBy: adminId,
+    createdAt: now - 2 * oneDay,
+    updatedAt: now - 2 * oneDay,
+  });
+
+  const exam6QuestionsData = [
+    {
+      text: "لماذا يتم وضع الحامل في الثلث الثالث من الحمل بميلان جانبي أيسر (Left Lateral Tilt) بزاوية 15 درجة على طاولة العمليات؟",
+      points: 1,
+      explanation: "ضغط الرحم الحامل في وضعية الاستلقاء الظهري التام على الوريد الأجوف السفلي والأبهر يقلل العود الوريدي والنتاج القلبي بشدة، والميلان الجانبي الأيسر يزيح الرحم ويمنع متلازمة انضغاط الأوعية الكبرى.",
+      choices: [
+        { text: "لمنع متلازمة انضغاط الوريد الأجوف السفلي والشريان الأبهر (Aortocaval Compression)", isCorrect: true },
+        { text: "لتسهيل إعطاء المخدر الوريدي فقط", isCorrect: false },
+        { text: "لتسريع امتصاص أدوية التخدير الموضعي في الحبل الشوكي", isCorrect: false },
+        { text: "لزيادة الضغط داخل المعدة لمنع الارتجاع", isCorrect: false },
+      ],
+    },
+    {
+      text: "ما هي أضيق نقطة تشريحية وظيفية في مجرى الهواء العلوي لدى الرضيع والطفل دون سن الثامنة؟",
+      points: 1,
+      explanation: "حنجرة الرضيع قمعية الشكل (Funnel-shaped) وتعتبر منطقة الغضروف الحلقي (Cricoid Ring) هي أضيق منطقة دائرية متكاملة غير قابلة للتمدد، بخلاف البالغين حيث أضيق نقطة هي فتحة المزمار.",
+      choices: [
+        { text: "منطقة الغضروف الحلقي (Cricoid Ring / Subglottic)", isCorrect: true },
+        { text: "الحبال الصوتية الحقيقية (Vocal Cords)", isCorrect: false },
+        { text: "لسان المزمار (Epiglottis)", isCorrect: false },
+        { text: "البلعوم الفموي (Oropharynx)", isCorrect: false },
+      ],
+    },
+  ];
+
+  for (let i = 0; i < exam6QuestionsData.length; i++) {
+    const qData = exam6QuestionsData[i];
+    const questionId = generateId();
+    await db.insert(questions).values({
+      id: questionId,
+      examId: exam6Id,
+      questionText: qData.text,
+      points: qData.points,
+      explanation: qData.explanation,
+      orderIndex: i + 1,
+      createdAt: now,
+    });
+
+    for (let j = 0; j < qData.choices.length; j++) {
+      const cData = qData.choices[j];
+      await db.insert(choices).values({
+        id: generateId(),
+        questionId: questionId,
+        choiceText: cData.text,
+        isCorrect: cData.isCorrect ? 1 : 0,
+        orderIndex: j + 1,
+      });
+    }
+  }
+
+  // 4e. Exam 7: Pain Management & Ultrasound Blocks (Demo Exam - 2 Questions)
+  const exam7Id = generateId();
+  await db.insert(exams).values({
+    id: exam7Id,
+    title: "طب الألم والتخدير الموضعي الموجه بالأمواج فوق الصوتية (Pain Management & Ultrasound Blocks)",
+    description: "اختبار تجريبي لتشخيص وتسكين الألم الحاد، والمبادئ الأساسية لاستخدام السونار في حصارات الأعصاب الطرفية.",
+    status: "published",
+    totalQuestions: 2,
+    passPercentage: 70,
+    durationMinutes: 10,
+    shuffleQuestions: 1,
+    shuffleChoices: 1,
+    showResultsImmediately: 1,
+    allowReviewAnswers: 1,
+    createdBy: adminId,
+    createdAt: now - 1 * oneDay,
+    updatedAt: now - 1 * oneDay,
+  });
+
+  const exam7QuestionsData = [
+    {
+      text: "عند إجراء حصار الضفيرة العضدية بين الأخمعيات (Interscalene Brachial Plexus Block)، ما هو الأثر الجانبي الحتمي الأكثر حدوثاً في نفس جهة الحقن؟",
+      points: 1,
+      explanation: "شلل العصب الحجابي المؤقت في نفس الجهة (Ipsilateral Phrenic Nerve Palsy) يحدث بنسبة تقارب 100% نتيجة قرب العصب الحجابي من الحزمة العصبية على العضلة الأخمعية الأمامية، مؤدياً لشلل نصفي مؤقت بالحجاب الحاجز.",
+      choices: [
+        { text: "شلل العصب الحجابي المؤقت وشلل نصف الحجاب الحاجز في جهة الحقن (Phrenic Palsy)", isCorrect: true },
+        { text: "استرواح الصدر التوتري الحاد في جميع الحالات", isCorrect: false },
+        { text: "شلل دائم في العصب الوجهي القحفي", isCorrect: false },
+        { text: "فقدان السمع الحسي العصبي", isCorrect: false },
+      ],
+    },
+    {
+      text: "أي من المخدرات الموضعية التالية يتميز بأعلى درجة من السمية القلبية الحادة (Cardiotoxicity) وصعوبة الإنعاش عند حقنه الوريدي العرضي؟",
+      points: 1,
+      explanation: "البوبيفاكايين (Bupivacaine) يتميز بقابلية عالية للذوبان في الدهون وارتباط بطيء الانفكاك بقنوات الصوديوم القلبية السريعة، مما يجعله أكثر سمية لعضلة القلب وصعب الإنعاش عند حدوث LAST.",
+      choices: [
+        { text: "بوبيفاكايين (Bupivacaine)", isCorrect: true },
+        { text: "ليدوكايين (Lidocaine)", isCorrect: false },
+        { text: "بريلوكايين (Prilocaine)", isCorrect: false },
+        { text: "ميفيباكايين (Mepivacaine)", isCorrect: false },
+      ],
+    },
+  ];
+
+  for (let i = 0; i < exam7QuestionsData.length; i++) {
+    const qData = exam7QuestionsData[i];
+    const questionId = generateId();
+    await db.insert(questions).values({
+      id: questionId,
+      examId: exam7Id,
+      questionText: qData.text,
+      points: qData.points,
+      explanation: qData.explanation,
+      orderIndex: i + 1,
+      createdAt: now,
+    });
+
+    for (let j = 0; j < qData.choices.length; j++) {
+      const cData = qData.choices[j];
+      await db.insert(choices).values({
+        id: generateId(),
+        questionId: questionId,
+        choiceText: cData.text,
+        isCorrect: cData.isCorrect ? 1 : 0,
+        orderIndex: j + 1,
+      });
+    }
+  }
+
   // 5. Schedules (Group & Individual)
   // Schedule 1: Group Schedule for Exam 1 (Active right now! From 2 hours ago to 24 hours later)
   const schedule1Id = generateId();
@@ -508,6 +784,44 @@ export async function seedDatabase() {
     status: "assigned",
     createdAt: now - 1 * oneHour,
   });
+
+  // Schedules 4, 5, 6, 7: Group Schedules for the 4 Demo Exams
+  const demoExamsList = [
+    { id: exam4Id, title: "مراقبة العلامات الحيوية وتخطيط القلب أثناء التخدير" },
+    { id: exam5Id, title: "إنعاش السوائل ونقل الدم في العمليات الجراحية" },
+    { id: exam6Id, title: "التخدير في طب التوليد وجراحة الأطفال" },
+    { id: exam7Id, title: "طب الألم والتخدير الموضعي الموجه بالأمواج فوق الصوتية" },
+  ];
+
+  for (const demoExam of demoExamsList) {
+    const demoScheduleId = generateId();
+    await db.insert(examSchedules).values({
+      id: demoScheduleId,
+      examId: demoExam.id,
+      scheduleType: "group",
+      title: `جدولة تجريبية: ${demoExam.title}`,
+      targetGroup: "all",
+      startTime: now - 1 * oneHour,
+      endTime: now + 30 * oneDay,
+      durationMinutes: 10,
+      isActive: 1,
+      createdAt: now,
+    });
+
+    for (const studentId of [student1Id, student2Id, student3Id, student4Id]) {
+      await db.insert(examAssignments).values({
+        id: generateId(),
+        examId: demoExam.id,
+        scheduleId: demoScheduleId,
+        userId: studentId,
+        assignedStartTime: now - 1 * oneHour,
+        assignedEndTime: now + 30 * oneDay,
+        durationMinutes: 10,
+        status: "assigned",
+        createdAt: now,
+      });
+    }
+  }
 
   // 6. Historical completed attempt and result for Student 1 on Exam 1
   const attempt1Id = generateId();

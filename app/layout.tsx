@@ -1,24 +1,17 @@
 import type { Metadata } from "next";
-import { Readex_Pro, JetBrains_Mono } from "next/font/google";
+import { Cairo } from "next/font/google";
 import "./globals.css";
 
-const readex = Readex_Pro({
+const cairo = Cairo({
   subsets: ["arabic", "latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-readex",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-mono",
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-cairo",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "MED ZONE | المنصة الأكاديمية والامتحانية الموحدة",
-  description: "المنظومة السريرية المتقدمة لتعليم واختبارات علوم التخدير والرعاية الحرجة - MED ZONE Vanguard",
+  title: "MED ZONE | الموقع الامتحاني للكلية",
+  description: "المنصة الامتحانية الأكاديمية الرسمية للكلية - MED ZONE Examination Platform",
   icons: {
     icon: "/logo.webp",
     apple: "/logo.webp",
@@ -31,12 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="ar"
-      dir="rtl"
-      className={`${readex.variable} ${jetbrainsMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col font-sans bg-[#060a12] text-slate-100 selection:bg-emerald-500/30 selection:text-emerald-300">
+    <html lang="ar" dir="rtl" className={`${cairo.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col font-sans bg-slate-50 text-slate-900 selection:bg-sky-500 selection:text-white">
         {children}
       </body>
     </html>
