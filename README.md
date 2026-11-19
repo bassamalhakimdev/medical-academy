@@ -1,36 +1,163 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# أكاديمية علوم التخدير والإنعاش الطبي | Medical Academy Platform
 
-## Getting Started
+منصة أكاديمية طبية متقدمة ومتخصصة في تعليم واختبارات علوم التخدير، الرعاية الحرجة، وتدبير المجرى الهوائي. تم بناؤها باستخدام أحدث التقنيات السحابية وفق معايير الأمان الأكاديمية والسريرية.
 
-First, run the development server:
+---
 
+## 🛠️ التقنيات المعتمدة (Tech Stack)
+
+- **الإطار البرمجي الأساسي:** Next.js 16 (App Router) + React 19 + TypeScript.
+- **التصميم وتنسيق الواجهات:** Tailwind CSS (RTL افتراضياً مع خط Cairo الطبي، وهوية طبية تجمع بين الأبيض، الكحلي الطبي `#0f172a`، والأزرق السماوي `#0284c7`).
+- **قاعدة البيانات:** Cloudflare D1 (SQLite Engine) مع دعم التشغيل المحلي عالي السرعة via SQLite للبيئات التطويرية.
+- **إدارة المخطط وقواعد البيانات (ORM):** Drizzle ORM مع معاملات ذرية (Atomic Transactions).
+- **طبقة API السحابية الآمنة:** Cloudflare Worker مع مصادقة Bearer Token للربط المباشر مع D1.
+- **إدارة الجلسات والأمان:** جلسات مشفرة (HttpOnly Cookies, Secure, SameSite=Lax)، تشفير كلمات المرور بـ `bcryptjs`، والتحقق الصارم من المدخلات بواسطة `Zod`.
+- **الاستضافة:** مهيأة بالكامل للنشر السحابي المباشر على Vercel.
+
+> [!IMPORTANT]
+> المنصة مطابقة تماماً للشروط: **خالية بنسبة 100% من Supabase و Firebase و Cloudflare R2**.
+
+---
+
+## 👥 الحسابات والصلاحيات الافتراضية للتجربة (Demo Accounts)
+
+تم تهيئة قاعدة البيانات مسبقاً بحسابات وبيانات سريرية واقعية متخصصة في التخدير:
+
+### 1. حساب إدارة الأكاديمية (Admin)
+- **البريد الإلكتروني:** `admin@anesthesia-academy.com`
+- **كلمة المرور:** `AdminPassword123!`
+- **الصلاحيات:** التحكم الكامل بالطلاب، بنك الأسئلة، الجدولة الفردية والجماعية، متابعة النتائج والتقارير.
+
+### 2. حسابات الأطباء المقيمين والطلاب (Residents / Students)
+- **الطبيب المقيم 1 (لديه اختبار متاح للبدء حالياً):**
+  - **البريد الإلكتروني:** `sara.mansoor@anesthesia-academy.com`
+  - **كلمة المرور:** `StudentPass123!`
+  - **الرقم الأكاديمي:** `ANES-2026-002` (دفعة المقيمين R1)
+- **الطبيب المقيم 2 (لديه نتائج مكتملة للمعاينة):**
+  - **البريد الإلكتروني:** `ahmed.zahrani@anesthesia-academy.com`
+  - **كلمة المرور:** `StudentPass123!`
+  - **الرقم الأكاديمي:** `ANES-2026-001`
+
+---
+
+## 📋 هيكل قاعدة البيانات (Drizzle & D1 Schema)
+
+تتألف قاعدة البيانات من 10 جداول متناسقة ومحمية بالقيود والفهارس والمعاملات الذرية:
+
+1. `users`: تخزين بيانات الأطباء والإدارة، البريد المشفر، الرقم الأكاديمي، الدفعة، وحالة التفعيل.
+2. `sessions`: إدارة جلسات تسجيل الدخول والرموز المميزة وتواريخ الانتهاء.
+3. `exams`: بنك الاختبارات (العنوان، الوصف، مدة الاختبار، درجة النجاح، إعدادات العشوائية، حالة النشر/مسودة).
+4. `questions`: أسئلة الاختيار من متعدد (MCQ) مع درجات السؤال والتعليل والشرح الطبي المرجعي.
+5. `choices`: الخيارات الأربعة لكل سؤال مع علامة الإجابة الصحيحة (محمية ومحجوبة تماماً عن واجهة الطالب أثناء التقديم).
+6. `exam_schedules`: إدارة نظامي الجدولة (الجماعية لمجموعة أو لكافة الأطباء، والفردية لطبيب محدد بنافذة زمنية ومدة مستقلة).
+7. `exam_assignments`: تعيين الاختبارات للأطباء وتتبع حالات البدء والإنجاز.
+8. `exam_attempts`: محاولات التقديم (تسجيل وقت البدء على الخادم، وقت الانتهاء المحسوب بدقة، وحفظ الترتيب العشوائي للأسئلة والاختيارات الخاص بالطالب).
+9. `student_answers`: تخزين إجابات الطبيب مع ميزة الحفظ التلقائي الآمن (Autosave) وعدم التكرار `UNIQUE(attempt_id, question_id)`.
+10. `results`: سجل النتائج والدرجات ونسب النجاح والوقت المستغرق مع ضمان عدم التسليم المزدوج.
+
+---
+
+## 🚀 تشغيل المشروع محلياً (Local Development)
+
+### الخطوة 1: تثبيت الحزم
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### الخطوة 2: إعداد متغيرات البيئة
+انسخ ملف `.env.example` إلى `.env`:
+```bash
+cp .env.example .env
+```
+محتوى الملف الافتراضي للتطوير المحلي:
+```env
+AUTH_SECRET="your-super-secret-jwt-key-min-32-chars-long"
+DATABASE_PATH="./data/medical_platform.db"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### الخطوة 3: زرع البيانات التجريبية (Seeding)
+لتغذية قاعدة البيانات بحسابات الأطباء واختبارات التخدير التخصصية:
+```bash
+npx tsx lib/db/seed.ts
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### الخطوة 4: تشغيل خادم التطوير
+```bash
+npm run dev
+```
+افتح المتصفح على: [http://localhost:3000](http://localhost:3000)
 
-## Learn More
+### الخطوة 5: التحقق من خلو الكود واختباره
+- **فحص الأنواع (TypeScript):**
+  ```bash
+  npx tsc --noEmit
+  ```
+- **تشغيل اختبارات التكامل الآلية (Integration Tests):**
+  ```bash
+  npx tsx tests/integration.ts
+  ```
+- **بناء حزمة الإنتاج (Production Build):**
+  ```bash
+  npm run build
+  ```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ☁️ إعداد ونشر المشروع (Cloudflare D1 & Worker & Vercel)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### أولاً: إعداد Cloudflare D1
+1. قم بإنشاء قاعدة بيانات D1 عبر Cloudflare CLI (Wrangler):
+   ```bash
+   npx wrangler d1 create medical-platform-db
+   ```
+2. قم بتنفيذ مخطط الجداول `schema.sql`:
+   ```bash
+   npx wrangler d1 execute medical-platform-db --file=./worker/schema.sql
+   ```
 
-## Deploy on Vercel
+### ثانياً: نشر Cloudflare Worker كطبقة API
+1. انتقل إلى مجلد `worker/`:
+   ```bash
+   cd worker
+   ```
+2. ضع معرف قاعدة البيانات `database_id` الناتج في ملف `worker/wrangler.toml`.
+3. اضبط سر التحقق `D1_WORKER_SECRET`:
+   ```bash
+   npx wrangler secret put D1_WORKER_SECRET
+   ```
+4. انشر الـ Worker:
+   ```bash
+   npx wrangler deploy
+   ```
+   سينتج لك رابط الـ Worker مثل: `https://medical-platform-d1-worker.your-subdomain.workers.dev`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### ثالثاً: النشر على Vercel
+1. اربط مستودع المشروع بحسابك على Vercel.
+2. في إعدادات المشروع داخل Vercel (Project Settings -> Environment Variables)، أضف المتغيرات التالية:
+   - `AUTH_SECRET`: مفتاح سري عشوائي مشفر للجلسات (32 حرفاً أو أكثر).
+   - `D1_WORKER_URL`: رابط الـ Worker الذي تم نشره على Cloudflare.
+   - `D1_WORKER_SECRET`: نفس المفتاح السري المعتمد في الـ Worker.
+   - `NEXT_PUBLIC_APP_URL`: رابط موقعك المباشر على Vercel.
+3. انقر على **Deploy**. سيعمل التطبيق فوراً وبكفاءة كاملة.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## ✨ المميزات الرئيسية للمنصة
+
+1. **محرك اختبارات تخدير ذري فائق الأمان:**
+   - تحقق صارم من وقت البداية والنهاية عبر ساعة الخادم.
+   - حفظ تلقائي مستمر للإجابات مع كل نقرة (Autosave).
+   - استعادة الإجابات فوراً عند إعادة تحميل الصفحة أو انقطاع الاتصال.
+   - منع احتساب المحاولة أو تسليمها أكثر من مرة.
+   - تصحيح آلي ذري عبر معايير الخادم وتحديث الدرجات في نفس المعاملة (Transaction).
+
+2. **نظام جدولة متقدم:**
+   - **جدولة جماعية:** تخصيص الاختبار لدفعة محددة أو لجميع المقيمين بمدة وفترة موحدة.
+   - **جدولة فردية:** تخصيص موعد ومدة مستقلة تماماً لطبيب معين (للاختبارات التعويضية أو الخاصة).
+
+3. **لوحة تحكم وإشراف شاملة باللغة العربية:**
+   - إحصائيات الأداء، متوسط الدرجات، ونسب الاجتياز.
+   - إدارة حسابات الأطباء: إضافة، تعديل، تعطيل وتفعيل الحسابات، وإعادة تعيين كلمات المرور.
+   - محرر أسئلة MCQ مع إضافة 4 اختيارات، وتحديد الإجابة الصحيحة والتعليل الطبي.
+   - تقارير تفصيلية لكل تسليم تظهر اختيارات الطبيب مقارنة بالإجابات الصحيحة والشرح السريري.
